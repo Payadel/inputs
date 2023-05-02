@@ -1,3 +1,4 @@
+#https://github.com/github/codeql-action
 # For most projects, this workflow file will not need changing; you simply need
 # to commit it to your repository.
 #
@@ -13,7 +14,9 @@ name: "CodeQL"
 
 on:
   schedule:
-    - cron: '31 7 * * 3'
+    - cron: '40 14 * * 6' #this workflow will run at 14:40 UTC every Saturday
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   analyze:

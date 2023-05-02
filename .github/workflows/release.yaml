@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: false
+        default: ''
+      create-pr-for-branch:
+        required: false
+        default: 'main'
+        description: Target branch? empty for skip.
+      generate-changelog:
+        type: choice
+        default: auto
+        options:
+          - never
+          - always
+          - auto
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+
+    # Limit branch:
+    if: github.ref == 'refs/heads/dev'
+    # Or
+    #if: github.ref != 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Print inputs
+        run: |
+          echo "version: ${{ inputs.version }}"
+          echo "create-pr-for-branch: ${{ inputs.create-pr-for-branch }}"
+          echo "generate-changelog: ${{ inputs.generate-changelog }}"
+          echo "Current Branch: $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Release
+        uses: Payadel/release-sv-action@v0.3.1
+        id: release
+        with:
+          version: ${{ inputs.version }}
+          create-pr-for-branch: ${{ inputs.create-pr-for-branch }}
+          generate-changelog: ${{ inputs.generate-changelog }}
+          skip-release-file: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print outputs
+        run: |
+          echo "version: ${{ steps.release.outputs.version }}"
+          echo "pull-request-url: ${{ steps.release.outputs.pull-request-url }}"
+          echo "release-filename: ${{ steps.release.outputs.release-filename }}"
+
+      - name: GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: '${{ steps.release.outputs.release-filename }}'
+          allowUpdates: true
+          body: ${{ steps.release.outputs.changelog }}
+          tag: 'v${{ steps.release.outputs.version }}'
