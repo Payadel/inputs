@@ -1,0 +1,52 @@
+name: 'build-test'
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - '**/*.md'  # ignore all files with the .md extension in any subdirectory
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - '**/*.md'
+  workflow_dispatch:
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          npm install
+
+      - name: Run All
+        run: |
+          export NODE_OPTIONS=--openssl-legacy-provider
+          npm run all
+
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Action
+        uses: ./
+        id: hello
+        with:
+          who-to-greet: World
+          milliseconds: 1000
+
+      # For more information and sample asserts, please see https://github.com/Payadel/assert/
+      - name: Test outputs
+        uses: Payadel/assert@v1.0.0
+        with:
+          fail-fast: false
+          verbose: true
+          inputs: |
+            - name: test hello-message
+              type: Equals
+              expected: 'Hello World!'
+              actual: ${{ steps.hello.outputs.hello-message }}
