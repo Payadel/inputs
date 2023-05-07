@@ -1,6 +1,21 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 7905:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DEFAULT_INPUTS = void 0;
+exports.DEFAULT_INPUTS = {
+    logInputs: true,
+    inputsYaml: [],
+};
+//# sourceMappingURL=configs.js.map
+
+/***/ }),
+
 /***/ 6180:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -33,11 +48,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = void 0;
 const utility_1 = __nccwpck_require__(2857);
 const yaml = __importStar(__nccwpck_require__(1917));
+const configs_1 = __nccwpck_require__(7905);
 const getInputs = () => new Promise(resolve => {
+    var _a;
     const inputs = (0, utility_1.getInputOrDefault)("inputs", "", true, false);
     const parsedYaml = yaml.load(inputs);
     return resolve({
         inputsYaml: parsedYaml,
+        logInputs: (_a = (0, utility_1.getBooleanInputOrDefault)("log-inputs", undefined)) !== null && _a !== void 0 ? _a : configs_1.DEFAULT_INPUTS.logInputs,
     });
 });
 exports.getInputs = getInputs;
@@ -100,15 +118,17 @@ const run = () => _mainProcess()
 });
 exports["default"] = run;
 function _mainProcess() {
-    return (0, inputs_1.getInputs)().then(() => {
+    return (0, inputs_1.getInputs)().then(actionInputs => {
+        // Get inputs from GitHub context
         const contextInputs = github.context.payload.inputs;
-        core.info(`github.context.payload.inputs: ${contextInputs}`);
         for (const inputName in contextInputs) {
+            //set inputs to outputs
             const inputValue = contextInputs[inputName];
-            core.info(`Input "${inputName}" has value "${inputValue}"`);
+            core.setOutput(inputName, inputValue);
+            //Log inputs if is requested.
+            if (actionInputs.logInputs)
+                core.info(`${inputName}: ${inputValue}`);
         }
-        const payload = JSON.stringify(github.context.payload, undefined, 2);
-        core.info(`The event payload: ${payload}`);
     });
 }
 //# sourceMappingURL=run.js.map
@@ -144,7 +164,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInputOrDefault = void 0;
+exports.getBooleanInputOrDefault = exports.getInputOrDefault = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 function getInputOrDefault(name, default_value = undefined, trimWhitespace = true, required = false) {
     const input = core.getInput(name, {
@@ -159,6 +179,18 @@ function getInputOrDefault(name, default_value = undefined, trimWhitespace = tru
     return input;
 }
 exports.getInputOrDefault = getInputOrDefault;
+function getBooleanInputOrDefault(name, defaultValue = undefined, required = false) {
+    var _a;
+    const input = (_a = getInputOrDefault(name, undefined, true, required)) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+    if (!input)
+        return defaultValue;
+    if (input === "true")
+        return true;
+    if (input === "false")
+        return false;
+    throw new TypeError(`The value of '${name}' is not valid. It must be either true or false but got '${input}'.`);
+}
+exports.getBooleanInputOrDefault = getBooleanInputOrDefault;
 //# sourceMappingURL=utility.js.map
 
 /***/ }),
