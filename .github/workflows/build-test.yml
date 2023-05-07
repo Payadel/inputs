@@ -60,16 +60,16 @@ jobs:
           fail-fast: false
           verbose: true
           inputs: |
-            - name: test input-required 
+            - name: 'test input-required'
               type: Equals
               expected: 'input-required value'
-              actual: ${{ steps.inputs.outputs.input-required }}
+              actual: '${{ steps.inputs.outputs.input-required }}'
             
-            - name: test input-choice
+            - name: 'test input-choice'
               type: Equals
               expected: 'name1'
-              actual: ${{ steps.inputs.outputs.input-choice }}
+              actual: '${{ steps.inputs.outputs.input-choice }}'
             
-            - name: test input-boolean
+            - name: 'test input-boolean'
               type: False
-              input: ${{ steps.inputs.outputs.input-boolean }}
+              input: '${{ steps.inputs.outputs.input-boolean }}'
