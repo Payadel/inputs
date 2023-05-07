@@ -20,3 +20,22 @@ export function getInputOrDefault(
     core.debug(`${name}: ${input}`);
     return input;
 }
+
+export function getBooleanInputOrDefault(
+    name: string,
+    defaultValue: boolean | undefined = undefined,
+    required = false
+): boolean | undefined {
+    const input = getInputOrDefault(
+        name,
+        undefined,
+        true,
+        required
+    )?.toLowerCase();
+    if (!input) return defaultValue;
+    if (input === "true") return true;
+    if (input === "false") return false;
+    throw new TypeError(
+        `The value of '${name}' is not valid. It must be either true or false but got '${input}'.`
+    );
+}

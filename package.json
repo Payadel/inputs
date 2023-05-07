@@ -23,9 +23,10 @@
     "url": "git+https://github.com/Payadel/inputs.git"
   },
   "keywords": [
-    "sample"
+    "inputs",
+    "workflow_dispatch"
   ],
-  "author": "Your Name",
+  "author": "Payadel",
   "license": "GPLV3",
   "bugs": {
     "url": "https://github.com/Payadel/inputs/issues"

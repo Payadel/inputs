@@ -51,8 +51,7 @@ jobs:
         uses: ./
         id: inputs
         with:
-          who-to-greet: World
-          milliseconds: 1000
+          log-inputs: true
 
       # For more information and sample asserts, please see https://github.com/Payadel/assert/
       - name: Test outputs
@@ -61,7 +60,16 @@ jobs:
           fail-fast: false
           verbose: true
           inputs: |
-            - name: test hello-message
+            - name: test input-required 
               type: Equals
-              expected: 'Hello World!'
-              actual: ${{ steps.hello.outputs.hello-message }}
+              expected: 'input-required value'
+              actual: ${{ steps.inputs.outputs.input-required }}
+            
+            - name: test input-choice
+              type: Equals
+              expected: 'name1'
+              actual: ${{ steps.inputs.outputs.input-choice }}
+            
+            - name: test input-boolean
+              type: False
+              input: ${{ steps.inputs.outputs.input-boolean }}

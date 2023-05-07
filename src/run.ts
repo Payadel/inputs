@@ -15,16 +15,17 @@ const run = (): Promise<void> =>
 export default run;
 
 function _mainProcess(): Promise<void> {
-    return getInputs().then(() => {
+    return getInputs().then(actionInputs => {
+        // Get inputs from GitHub context
         const contextInputs = github.context.payload.inputs;
-        core.info(`github.context.payload.inputs: ${contextInputs}`);
-
         for (const inputName in contextInputs) {
+            //set inputs to outputs
             const inputValue = contextInputs[inputName];
-            core.info(`Input "${inputName}" has value "${inputValue}"`);
-        }
+            core.setOutput(inputName, inputValue);
 
-        const payload = JSON.stringify(github.context.payload, undefined, 2);
-        core.info(`The event payload: ${payload}`);
+            //Log inputs if is requested.
+            if (actionInputs.logInputs)
+                core.info(`${inputName}: ${inputValue}`);
+        }
     });
 }

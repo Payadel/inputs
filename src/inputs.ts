@@ -1,8 +1,10 @@
-import { getInputOrDefault } from "./utility";
+import { getBooleanInputOrDefault, getInputOrDefault } from "./utility";
 import * as yaml from "js-yaml";
+import { DEFAULT_INPUTS } from "./configs";
 
 export interface IInputs {
     inputsYaml: any[];
+    logInputs: boolean;
 }
 
 export const getInputs = (): Promise<IInputs> =>
@@ -12,5 +14,8 @@ export const getInputs = (): Promise<IInputs> =>
 
         return resolve({
             inputsYaml: parsedYaml,
+            logInputs:
+                getBooleanInputOrDefault("log-inputs", undefined) ??
+                DEFAULT_INPUTS.logInputs,
         });
     });
