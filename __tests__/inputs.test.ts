@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { getInputs, IInputs } from "../src/inputs";
+import { getInputs } from "../src/inputs";
 import { mockGetInput } from "./mocks.utility";
 
 jest.mock("@actions/core");
