@@ -12,6 +12,21 @@ on:
     paths-ignore:
       - '**/*.md'
   workflow_dispatch:
+    inputs:
+      input-required:
+        required: true
+        default: 'input-required value'
+      input-optional:
+        required: false
+        default: ''
+      input-choice:
+        type: choice
+        description: Who to greet
+        options:
+          - name1
+          - name2
+      input-boolean:
+        type: boolean
 
 jobs:
   build: # make sure build/ci work properly
@@ -34,7 +49,7 @@ jobs:
 
       - name: Run Action
         uses: ./
-        id: hello
+        id: inputs
         with:
           who-to-greet: World
           milliseconds: 1000
