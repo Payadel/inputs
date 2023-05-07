@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 
 export interface IActionOutputs {
-    "hello-message": string;
+    [key: string]: string;
 }
 
 export function setOutputs(data: IActionOutputs): void {

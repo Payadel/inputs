@@ -1,8 +1,6 @@
 import * as core from "@actions/core";
-import { ensureInputsValid, getInputs } from "./inputs";
-import { setOutputs } from "./outputs";
-// import * as github from "@actions/github";
-// import * as exec from "@actions/exec";
+import { getInputs } from "./inputs";
+import * as github from "@actions/github";
 
 const run = (): Promise<void> =>
     _mainProcess()
@@ -17,18 +15,16 @@ const run = (): Promise<void> =>
 export default run;
 
 function _mainProcess(): Promise<void> {
-    return getInputs().then(inputs =>
-        ensureInputsValid(inputs).then(() => {
-            core.debug(`who-to-great: ${inputs.nameToGreet}`);
+    return getInputs().then(() => {
+        const contextInputs = github.context.payload.inputs;
+        core.info(`github.context.payload.inputs: ${contextInputs}`);
 
-            const helloMessage = `Hello ${inputs.nameToGreet}!`;
-            core.info(helloMessage);
+        for (const inputName in contextInputs) {
+            const inputValue = contextInputs[inputName];
+            core.info(`Input "${inputName}" has value "${inputValue}"`);
+        }
 
-            setOutputs({ "hello-message": helloMessage });
-
-            // Get the JSON webhook payload for the event that triggered the workflow
-            // const payload = JSON.stringify(github.context.payload, undefined, 2);
-            // core.info(`The event payload: ${payload}`);
-        })
-    );
+        const payload = JSON.stringify(github.context.payload, undefined, 2);
+        core.info(`The event payload: ${payload}`);
+    });
 }

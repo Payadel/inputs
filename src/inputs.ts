@@ -1,23 +1,16 @@
 import { getInputOrDefault } from "./utility";
-import { DEFAULT_INPUTS } from "./configs";
+import * as yaml from "js-yaml";
 
 export interface IInputs {
-    nameToGreet: string;
+    inputsYaml: any[];
 }
 
 export const getInputs = (): Promise<IInputs> =>
-    new Promise<IInputs>(resolve =>
-        resolve({
-            nameToGreet:
-                getInputOrDefault("who-to-great", undefined, true, true) ??
-                DEFAULT_INPUTS.nameToGreet,
-        })
-    );
+    new Promise<IInputs>(resolve => {
+        const inputs = getInputOrDefault("inputs", "", true, false);
+        const parsedYaml = yaml.load(inputs);
 
-export function ensureInputsValid(inputs: IInputs): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        return inputs.nameToGreet
-            ? resolve()
-            : reject(new Error("The 'who-to-great' parameter is required."));
+        return resolve({
+            inputsYaml: parsedYaml,
+        });
     });
-}
