@@ -1,65 +1,52 @@
 import run from "../src/run";
 import * as core from "@actions/core";
-import { mockGetInput } from "./mocks.utility";
+import * as github from "@actions/github";
 
 jest.mock("@actions/core");
+jest.mock("@actions/github");
 
 describe("run", () => {
     beforeEach(() => {
         jest.resetAllMocks();
     });
 
-    it("must output a hello message with the correct name and set it as an output", async () => {
+    it("when not any inputs provided, should resolve successful", async () => {
         // Arrange
-        const expectedName = "Payadel";
-        const debugMock = jest.spyOn(core, "debug");
         const infoMock = jest.spyOn(core, "info");
-        const setOutputMock = jest.spyOn(core, "setOutput");
         const errorMock = jest.spyOn(core, "error");
         const setFailedMock = jest.spyOn(core, "setFailed");
-        jest.spyOn(core, "getInput").mockImplementation(
-            (name: string, options?: core.InputOptions | undefined) =>
-                mockGetInput(name, { "who-to-great": expectedName }, options)
-        );
 
         // Act
-        // await run();
-        //
-        // // Assert
-        // expect(debugMock).toHaveBeenCalledWith(`who-to-great: ${expectedName}`);
-        // expect(infoMock).toHaveBeenCalledWith(`Hello ${expectedName}!`);
-        // expect(setOutputMock).toHaveBeenCalledWith(
-        //     "hello-message",
-        //     `Hello ${expectedName}!`
-        // );
-        //
-        // expect(errorMock).not.toHaveBeenCalled();
-        // expect(setFailedMock).not.toHaveBeenCalled();
+        await run();
+
+        // Assert
+        expect(infoMock).toHaveBeenCalledWith(
+            `Operation completed successfully.`
+        );
+
+        expect(errorMock).not.toHaveBeenCalled();
+        expect(setFailedMock).not.toHaveBeenCalled();
     });
 
-    it("must getInputs fails and error catch", async () => {
+    it("should get inputs from github context", async () => {
         // Arrange
-        const debugMock = jest.spyOn(core, "debug");
-        const infoMock = jest.spyOn(core, "info");
         const setOutputMock = jest.spyOn(core, "setOutput");
-        const errorMock = jest.spyOn(core, "error");
-        const setFailedMock = jest.spyOn(core, "setFailed");
-        jest.spyOn(core, "getInput").mockImplementation(
-            (name: string, options?: core.InputOptions | undefined) =>
-                mockGetInput(name, { "who-to-great": "" }, options)
-        );
+        const infoMock = jest.spyOn(core, "info");
+
+        const inputsPayload = {
+            input1: "value1",
+            input2: "value2",
+        };
+        (github.context.payload.inputs as any) = inputsPayload;
 
         // Act
-        // await run();
-        //
-        // // Assert
-        // expect(debugMock).not.toHaveBeenCalled();
-        // expect(infoMock).not.toHaveBeenCalled();
-        // expect(setOutputMock).not.toHaveBeenCalled();
-        //
-        // expect(errorMock).toHaveBeenCalledWith("Operation failed.");
-        // expect(setFailedMock).toHaveBeenCalledWith(
-        //     "Input required and not supplied: who-to-great"
-        // );
+        await run();
+
+        // Assert
+        expect(setOutputMock).toHaveBeenCalledWith("input1", "value1");
+        expect(infoMock).toHaveBeenCalledWith("input1: value1");
+
+        expect(setOutputMock).toHaveBeenCalledWith("input2", "value2");
+        expect(infoMock).toHaveBeenCalledWith("input2: value2");
     });
 });

@@ -18,6 +18,7 @@ function _mainProcess(): Promise<void> {
     return getInputs().then(actionInputs => {
         // Get inputs from GitHub context
         const contextInputs = github.context.payload.inputs;
+
         for (const inputName in contextInputs) {
             //set inputs to outputs
             const inputValue = contextInputs[inputName];
