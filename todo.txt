@@ -1,5 +1,0 @@
-TODO: Do this tasks!
-
-update build-test.yml
-update action.yml
-update package.json
