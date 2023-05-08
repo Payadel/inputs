@@ -52,7 +52,7 @@ jobs:
         id: inputs
         with:
           log-inputs: true
-          inputs:
+          inputs: |
             - name: 'input-required'
               default: 'input-required value'
 
