@@ -18,27 +18,25 @@ export interface IYamlInput {
 
 export const getInputs = (): Promise<IInputs> =>
     new Promise<IInputs>(resolve => {
-        const yamlInputsStr = getInputOrDefault(
-            "inputs",
-            undefined,
-            true,
-            false
-        );
-        let parsedYaml: IYamlInput[] | undefined;
-        if (yamlInputsStr) {
-            parsedYaml = yaml.load(yamlInputsStr);
-            ensureYamlIsValid(parsedYaml!);
-        }
-
         return resolve({
-            yamlInputs: parsedYaml ?? DEFAULT_INPUTS.yamlInputs,
+            yamlInputs: getValidatedYamlInput(),
             logInputs:
                 getBooleanInputOrDefault("log-inputs", undefined) ??
                 DEFAULT_INPUTS.logInputs,
         });
     });
 
+function getValidatedYamlInput(): IYamlInput[] {
+    const yamlInputsStr = getInputOrDefault("inputs", undefined, true, false);
+    if (!yamlInputsStr) return DEFAULT_INPUTS.yamlInputs;
+
+    const parsedYaml = yaml.load(yamlInputsStr);
+    ensureYamlIsValid(parsedYaml);
+    return parsedYaml;
+}
+
 function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
+    //Every item must has name and default key
     for (const item of parsedYaml) {
         if (!item.name) throw new Error(`The 'name' parameter is required.`);
         if (!item.default)
@@ -49,6 +47,7 @@ function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
             );
     }
 
+    // The name can not be repetitive.
     const repetitiveKeys = findRepetitiveItems(
         parsedYaml.map(item => item.name)
     );
