@@ -93,4 +93,24 @@ Item:
 
         await expect(getInputs()).resolves;
     });
+
+    it("the default key is exist but empty, should resolve", async () => {
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'param1'
+  default: 'value1'
+- name: 'param2'
+  default: ''
+    `,
+                    },
+                    options
+                )
+        );
+
+        await expect(getInputs()).resolves;
+    });
 });

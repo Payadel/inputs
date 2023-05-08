@@ -39,7 +39,7 @@ function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
     //Every item must has name and default key
     for (const item of parsedYaml) {
         if (!item.name) throw new Error(`The 'name' parameter is required.`);
-        if (!item.default)
+        if (item.default === undefined)
             throw new Error(
                 `The 'default' parameter is required.\nItem:\n\t${JSON.stringify(
                     item
