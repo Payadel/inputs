@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import { getInputs, IInputs } from "../src/inputs";
 import { mockGetInput } from "./mocks.utility";
+import { DEFAULT_INPUTS } from "../src/configs";
 
 jest.mock("@actions/core");
 
@@ -9,47 +10,107 @@ describe("getInputs", () => {
         jest.resetAllMocks();
     });
 
-    it("should return the input nameToGreet from the action", async () => {
-        const inputNameToGreet = "Payadel";
+    it("default inputs", async () => {
         jest.spyOn(core, "getInput").mockImplementation(
             (name: string, options?: core.InputOptions | undefined) =>
-                mockGetInput(
-                    name,
-                    { "who-to-great": inputNameToGreet },
-                    options
-                )
+                mockGetInput(name, {}, options)
         );
 
         const inputs: IInputs = await getInputs();
 
-        expect(Object.keys(inputs).length).toBe(1);
-        expect(inputs.nameToGreet).toBe(inputNameToGreet);
+        expect(inputs.logInputs).toBe(DEFAULT_INPUTS.logInputs);
+        expect(inputs.yamlInputs).toBe(DEFAULT_INPUTS.yamlInputs);
     });
 
-    it("give invalid input, should reject promise", async () => {
+    it("yaml input is not valid, so should reject", async () => {
         jest.spyOn(core, "getInput").mockImplementation(
             (name: string, options?: core.InputOptions | undefined) =>
-                mockGetInput(name, { "who-to-great": "" }, options)
+                mockGetInput(name, { inputs: "invalid yaml" }, options)
         );
         await expect(getInputs()).rejects.toThrow(
-            "Input required and not supplied: who-to-great"
+            "The 'name' parameter is required."
         );
-    });
 
-    it("name must be trim", async () => {
-        const inputNameToGreet = "Payadel";
         jest.spyOn(core, "getInput").mockImplementation(
             (name: string, options?: core.InputOptions | undefined) =>
                 mockGetInput(
                     name,
-                    { "who-to-great": `    ${inputNameToGreet}    ` },
+                    {
+                        inputs: `
+                                    - name: param
+                                `,
+                    },
+                    options
+                )
+        );
+        await expect(getInputs()).rejects.toThrow(
+            `The 'default' parameter is required.
+Item:
+\t{"name":"param"}`
+        );
+    });
+
+    it("give repetitive input name", async () => {
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'param1'
+  default: 'value1'
+- name: 'param2'
+  default: 'value2'
+- name: 'param1'
+  default: 'value2'
+    `,
+                    },
                     options
                 )
         );
 
-        const inputs: IInputs = await getInputs();
+        await expect(getInputs()).rejects.toThrow(
+            `Repetitive keys is not allowed: param1`
+        );
+    });
 
-        expect(Object.keys(inputs).length).toBe(1);
-        expect(inputs.nameToGreet).toBe(inputNameToGreet);
+    it("give valid inputs", async () => {
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'param1'
+  default: 'value1'
+- name: 'param2'
+  default: 'value2'
+    `,
+                    },
+                    options
+                )
+        );
+
+        await expect(getInputs()).resolves;
+    });
+
+    it("the default key is exist but empty, should resolve", async () => {
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'param1'
+  default: 'value1'
+- name: 'param2'
+  default: ''
+    `,
+                    },
+                    options
+                )
+        );
+
+        await expect(getInputs()).resolves;
     });
 });

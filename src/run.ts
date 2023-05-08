@@ -1,8 +1,7 @@
 import * as core from "@actions/core";
-import { ensureInputsValid, getInputs } from "./inputs";
+import * as github from "@actions/github";
+import { getInputs, IYamlInput } from "./inputs";
 import { setOutputs } from "./outputs";
-// import * as github from "@actions/github";
-// import * as exec from "@actions/exec";
 
 const run = (): Promise<void> =>
     _mainProcess()
@@ -17,18 +16,41 @@ const run = (): Promise<void> =>
 export default run;
 
 function _mainProcess(): Promise<void> {
-    return getInputs().then(inputs =>
-        ensureInputsValid(inputs).then(() => {
-            core.debug(`who-to-great: ${inputs.nameToGreet}`);
+    return getInputs().then(actionInputs => {
+        const allInputs = combineAllInputs(
+            actionInputs.yamlInputs,
+            github.context.payload.inputs
+        );
 
-            const helloMessage = `Hello ${inputs.nameToGreet}!`;
-            core.info(helloMessage);
+        setOutputs(allInputs, actionInputs.logInputs);
+    });
+}
 
-            setOutputs({ "hello-message": helloMessage });
+function combineAllInputs(
+    yamlInputs: IYamlInput[],
+    githubInputs: { [key: string]: string } | undefined
+): { [key: string]: string } {
+    const keys = getAllKeys(yamlInputs, githubInputs);
 
-            // Get the JSON webhook payload for the event that triggered the workflow
-            // const payload = JSON.stringify(github.context.payload, undefined, 2);
-            // core.info(`The event payload: ${payload}`);
-        })
-    );
+    //Combine inputs with GitHub context priority.
+    const result: { [key: string]: string } = {};
+    for (const key of keys) {
+        if (githubInputs && githubInputs[key]) result[key] = githubInputs[key];
+        else
+            result[key] = yamlInputs.find(
+                input => input.name.toLowerCase() === key
+            )!.default;
+    }
+
+    return result;
+}
+
+function getAllKeys(
+    yamlInputs: IYamlInput[] | undefined,
+    githubInputs: { [key: string]: string } | undefined
+): string[] {
+    const yamlKeys = yamlInputs ? yamlInputs.map(input => input.name) : [];
+    const githubKeys = githubInputs ? Object.keys(githubInputs) : [];
+
+    return yamlKeys.concat(githubKeys);
 }
