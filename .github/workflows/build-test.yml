@@ -77,10 +77,10 @@ jobs:
               expected: 'input-required value'
               actual: '${{ steps.inputs.outputs.input-required }}'
             
-            - name: 'test input-required'
+            - name: 'test input-optional'
               type: Equals
               expected: ''
-              actual: '${{ steps.inputs.outputs.input-required }}'
+              actual: '${{ steps.inputs.outputs.input-optional }}'
 
             - name: 'test input-choice'
               type: Equals
