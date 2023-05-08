@@ -79,4 +79,48 @@ describe("run", () => {
             infoMock
         );
     });
+
+    it("give yaml and github context", async () => {
+        // Arrange
+        const setOutputMock = jest.spyOn(core, "setOutput");
+        const infoMock = jest.spyOn(core, "info");
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'param1'
+  default: 'value1'
+- name: 'param2'
+  default: 'value2'
+- name: 'commonInput'
+  default: 'yaml'
+    `,
+                    },
+                    options
+                )
+        );
+        (github.context.payload.inputs as any) = {
+            input1: "value1",
+            input2: "value2",
+            commonInput: "github",
+        };
+
+        // Act
+        await expect(run()).resolves;
+
+        // Assert
+        assertOutput(
+            {
+                input1: "value1",
+                input2: "value2",
+                param1: "value1",
+                param2: "value2",
+                commonInput: "github", //priority with GitHub context
+            },
+            setOutputMock,
+            infoMock
+        );
+    });
 });
