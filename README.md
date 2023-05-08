@@ -1,191 +1,241 @@
-<h1 align="center">
-  <a href="">
-    <img src="" alt="Logo" width="100" height="100">
-  </a>
-</h1>
-
 <div align="center">
-  PROJECT_NAME
+  <h1>Inputs GitHub Action</h1>
   <br />
   <a href="#getting-started"><strong>Getting Started »</strong></a>
   <br />
   <br />
-  <a href="https://github.com/GITHUB_USERNAME/REPO_SLUG/issues/new?assignees=&labels=bug&template=BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
+  <a href="https://github.com/Payadel/inputs/issues/new?assignees=&labels=bug&template=BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
   ·
-  <a href="https://github.com/GITHUB_USERNAME/REPO_SLUG/issues/new?assignees=&labels=enhancement&template=FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
+  <a href="https://github.com/Payadel/inputs/issues/new?assignees=&labels=enhancement&template=FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
   .
-  <a href="https://github.com/GITHUB_USERNAME/REPO_SLUG/issues/new?assignees=&labels=question&template=SUPPORT_QUESTION.md&title=support%3A+">Ask a Question</a>
+  <a href="https://github.com/Payadel/inputs/issues/new?assignees=&labels=question&template=SUPPORT_QUESTION.md&title=support%3A+">Ask a Question</a>
 </div>
 
 <div align="center">
 <br />
 
-![GitHub](https://img.shields.io/github/license/User/Repo)
+[![code with love by Payadel](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-Payadel-ff1414.svg?style=flat-square)](https://github.com/Payadel)
 
-[![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/GITHUB_USERNAME/REPO_SLUG/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-[![code with love by GITHUB_USERNAME](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-GITHUB_USERNAME-ff1414.svg?style=flat-square)](https://github.com/GITHUB_USERNAME)
+[![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/Payadel/inputs/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+![Build and Test](https://github.com/Payadel/inputs/actions/workflows/build-test.yml/badge.svg)
+![GitHub](https://img.shields.io/github/license/Payadel/Inputs)
+
 
 </div>
 
-<details>
-<summary>Table of Contents</summary>
-
-- [About](#about)
-    - [Demo](#demo)
-    - [Built With](#built-with)
-- [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-- [Usage](#usage)
-    - [Documentation](#documentation)
-- [Known issues](#known-issues)
-- [CHANGELOG](#changelog)
-- [Features](#features)
-- [Roadmap](#roadmap)
-- [Support](#support)
-- [Used By](#used-by)
-- [FAQ](#faq)
-- [Project assistance](#project-assistance)
-- [Contributing](#contributing)
-- [Authors & contributors](#authors--contributors)
-- [Security](#security)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-- [Related](#related)
-
-</details>
-
 ## About
 
-> **[?]**
-> Provide general information about your project here.
-> Put a meaningful, short, plain-language description of:
-> What problem does it (intend to) solve?
-> What is the purpose of your project?
-> What this project is trying to accomplish and why it matters?
-> Why did you undertake it?
-> Describe the problem(s) this project solves.
-> Describe how this software can improve the lives of its audience.
-> Describe what sets this apart from related-projects.
-> You don't have to answer all the questions -- just the ones relevant to your project.
+The `Inputs GitHub Action` is a tool that helps you manage inputs of your GitHub Action in a better way.
 
-### Demo
+### What problem does it solve?
 
-**Screenshot**: If the software has visual components, place a screenshot after the description; e.g.,
+This action solves two main problems:
 
-<details>
-<summary>Screenshots</summary>
-<br>
+#### Problem 1:
 
-> **[?]**
-> Please provide your screenshots here.
+In some GitHub Actions require variables that can be changed if necessary, which is possible
+through `workflow_dispatch` inputs. By defining the `workflow_dispatch`, we can execute the GitHub Action manually and
+specify inputs for it, as well as **set default values** for inputs.
 
-|                               Home Page                               |                               Login Page                               |
-| :-------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| <img src="docs/images/screenshot.png" title="Home Page" width="100%"> | <img src="docs/images/screenshot.png" title="Login Page" width="100%"> |
+However, sometimes we need our GitHub Action to run **both** manually with input parameters and with other events, such
+as pushing to a specific branch. The Default values of `workflow_dispatch` only exist when the action is executed *
+*manually**, and will not be set if the action is executed with other events.
+it can be difficult to manage inputs in a way that is both convenient and safe.
 
-</details>
+**Solution:** This is where the Inputs GitHub Action comes in.
+With this action, you can manage inputs in a much easier and better way.
+The action allows you to specify inputs and default values with a simple and convenient `YAML` structure. If the action
+is executed manually, the inputs of `workflow_dispatch` are set in the output. However, if there is no input or the
+action is executed with other events, the default value specified in the action is set in the output.
+
+This GitHub Action aims to solve this problem by providing a **simple** and effective way to manage inputs.
+
+#### Problem 2:
+
+For future logs or debugging an action, we need to know exactly what parameters each action was executed
+with. For this, it is better to log the variables in Action GitHub. But this will be tedious, not clean and increase the
+possibility of error.
+
+**Solution:** To solve this problem, this action logs inputs by default (both `workflow_dispatch` inputs and those
+passed to the action with the YAML structure).
+
+### What is the purpose of your project?
+
+The purpose of the `Inputs GitHub Action` is to help users better manage the inputs of their GitHub Actions. By
+providing a simple and convenient way to specify inputs and default values using a `YAML` structure, this action aims to
+simplify the process of managing inputs and improve the lives of its audience.
 
 ### Built With
 
-> **[?]**
-> Please provide the technologies that are used in the project.
-
-**Client:** React, Redux, TailwindCSS
-
-**Server:** Node, Express
+The Inputs GitHub Action was built using Typescript and the GitHub Actions API. Specifically, it was created using
+the `@actions/core` and `@actions/github` packages, which provide the functionality needed to interact with the GitHub
+Actions runtime environment and the GitHub API.
 
 ## Getting Started
 
 ### Prerequisites
 
-> **[?]**
-> What are the project requirements/dependencies?
-> Describe any dependencies that must be installed for this software to work. This includes programming languages, databases or other storage mechanisms, build tools, frameworks, and so forth. If specific versions of other software are required, or known not to work, call that out.
-
-### Installation
-
-> **[?]**
-> Describe how to install and get started with the project.
-> Detailed instructions on how to install, configure, and get the project running. This should be frequently tested to ensure reliability. Alternatively, link to a separate [INSTALL](INSTALL.md) document.
+To use the Inputs GitHub Action, you will need a GitHub repository with a GitHub Actions workflow file. You will also
+need to be familiar with `YAML` syntax and have a basic understanding of how to define GitHub Actions workflows.
 
 ## Usage
 
-> **[?]**
-> How does one go about using it?
-> Provide various use cases and code examples here.
+To use the Inputs GitHub Action, you will need to add it to your GitHub Actions workflow file. Here's an example of how
+to use the action:
 
-```javascript
-import Component from 'my-project'
+```yaml
+name: My Workflow
 
-function App() {
-    return <Component/>
-}
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      my_input:
+        description: 'My input description.'
+        default: 'my default value'
+
+jobs:
+  my_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Inputs
+        uses: payadel/inputs@v0.1.0  # Ensure is latest
+        id: inputs
+        with:
+          log-inputs: true  # Default is true
+          inputs: |
+            - name: 'my_input'
+              default: 'my default value'
+
+      # How use inputs?
+      # Sample: ${{ steps.inputs.outputs.my_input }}
+
 ```
+
+This YAML code is an example of how to use this in a GitHub Actions workflow file. Here's what each section does:
+
+- `name: My Workflow`: This sets the name of the workflow. Replace `My Workflow` with the name of your workflow.
+
+- `on`: This section defines the events that trigger the workflow. In this example, the workflow is triggered on `push`
+  events to the `main` branch and manual `workflow_dispatch` events.
+
+- `inputs`: This section defines the inputs for the `workflow_dispatch` event. In this example, we have defined an input
+  named `my_input` with a description and default value.
+
+- `jobs`: This section defines the jobs that are run in the workflow.
+
+- `my_job`: This sets the name of the job. Replace `my_job` with the name of your job.
+
+- `runs-on: ubuntu-latest`: This sets the operating system that the job runs on. In this example, the job runs on
+  Ubuntu.
+
+- `steps`: This section defines the steps that are run in the job.
+
+- `- uses: actions/checkout@v3`: This step checks out the repository code into the runner.
+
+- `- name: Inputs`: This sets the name of the step. Replace `Inputs` with the name of your step.
+
+- `- uses: payadel/inputs@v0.1.0`: This step uses the `Inputs` GitHub Action.
+
+- `- id: inputs`: This sets the ID of the step. You can use this ID to reference the output of the step in later steps.
+
+- `- with`: This section sets the inputs for the `Inputs` GitHub Action.
+
+- `- log-inputs: true`: This enables logging of the inputs to the GitHub Actions log. The default value is `true`.
+
+- `- inputs: |`: This section defines the inputs for the `Inputs` GitHub Action. In this example, we have defined an
+  input named `my_input` with a default value.
 
 ### Documentation
 
-[Documentation](https://linktodocumentation)
+| Input        | Description                      | Default             | Required |
+|--------------|----------------------------------|---------------------|----------|
+| `inputs`     | Inputs in YAML format            | `''` (empty string) | `false`  |
+| `log-inputs` | Whether or not to log the inputs | `'true'`            | `false`  | 
 
-## Known issues
+The `inputs` input allows you to specify the inputs for your workflow in `YAML` format. The default value is an empty
+string, which means that no inputs will be specified unless you provide them.
 
-Document any known significant shortcomings with the software.
+The `log-inputs` input determines whether or not the inputs will be logged to the GitHub Actions log. The default value
+is `'true'`, which means that the inputs will be logged by default. If you don't want the inputs to be logged, you can
+set this input to `'false'`.
 
 ## CHANGELOG
 
+PLease see the [CHANGELOG.md](CHANGELOG.md) file.
+
 ## Features
 
--
--
+- Easily manage GitHub action inputs with a **simple** and convenient YAML structure.
+- Set default values for inputs that will be used if no input is provided or if the action is executed with other
+  events.
+- Log inputs for debugging and future reference without any extra effort or configuration.
+- Works seamlessly with `workflow_dispatch` inputs for manual execution.
+- Compatible with any GitHub Actions workflow.
 
 ## Roadmap
 
-See the [open issues](https://github.com/GITHUB_USERNAME/REPO_SLUG/issues) for a list of proposed features (and known
+See the [open issues](https://github.com/Payadel/inputs/issues) for a list of proposed features (and known
 issues).
 
-- [Top Feature Requests](https://github.com/GITHUB_USERNAME/REPO_SLUG/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (
+- [Top Feature Requests](https://github.com/Payadel/inputs/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (
   Add your votes using the 👍 reaction)
-- [Top Bugs](https://github.com/GITHUB_USERNAME/REPO_SLUG/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (
+- [Top Bugs](https://github.com/Payadel/inputs/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (
   Add your votes using the 👍 reaction)
-- [Newest Bugs](https://github.com/GITHUB_USERNAME/REPO_SLUG/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+- [Newest Bugs](https://github.com/Payadel/inputs/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
 ## Support
 
-> **[?]**
-> Provide additional ways to contact the project maintainer/maintainers.
-
 Reach out to the maintainer at one of the following places:
 
-- [GitHub issues](https://github.com/GITHUB_USERNAME/REPO_SLUG/issues/new?assignees=&labels=question&template=SUPPORT_QUESTION.md&title=support%3A+)
-- Contact options listed on [this GitHub profile](https://github.com/GITHUB_USERNAME)
-
-## Used By
-
-This project is used by the following companies:
-
-- Company 1
-- Company 2
+- [GitHub issues](https://github.com/Payadel/inputs/issues/new?assignees=&labels=question&template=SUPPORT_QUESTION.md&title=support%3A+)
 
 ## FAQ
 
-#### Question 1
+### Q: How do I specify inputs with this action?
 
-Answer 1
+A: You can specify inputs using the `inputs` input in `YAML` format.
+Each part contains two essential keys. One `name` and one `default`.
+Define the variable name in `name` key and the default value in `default` key.
+The `default` key can be empty string but is required to define it.
 
-#### Question 2
+> `workflow_dispatch` inputs are recognized by default and have **priority**.
 
-Answer 2
+See the [Getting Started](#getting-started) section above for an example.
 
-## Project assistance
+### Q: What happens if I don't specify any inputs?
 
-If you want to say **thank you** or/and support active development of PROJECT_NAME:
+A: We consider `workflow_dispatch` inputs and inputs that are given as yaml.
+If one of these two is not available, we will use the other.
+If there is no variable in either of these two, it will not be in the output either.
 
-- Add a [GitHub Star](https://github.com/GITHUB_USERNAME/REPO_SLUG) to the project.
-- Tweet about the PROJECT_NAME.
-- Write interesting articles about the project on [Dev.to](https://dev.to/), [Medium](https://medium.com/) or your
-  personal blog.
+> Don't forget that `workflow_dispatch` inputs will only exist when the action is executed manually.
 
-Together, we can make PROJECT_NAME **better**!
+### Q: When should define the inputs in the action?
+
+A: If your action is always executed manually, it is not necessary to define the inputs in the action, but if there is
+no `workflow_dispatch` or it is not necessarily going to be executed with `workflow_dispatch` (there are other events),
+we definitely suggest defining the inputs in the action.
+
+### Q: Can I still use `workflow_dispatch` inputs with this action?
+
+A: Yes! This action works seamlessly with `workflow_dispatch` inputs, so you can still use them for manual execution of
+your workflow.
+
+### Q: How do I log the inputs?
+
+A: By default, inputs are logged automatically. If you don't want to log inputs, you can set the `log-inputs` input
+to `'false'`. See the [Getting Started](#getting-started) section above for an example.
+
+### Q: Can I use this action with any GitHub Actions workflow?
+
+A: Yes! This action is compatible with any GitHub Actions workflow, so you can use it with any workflow you create or
+use.
 
 ## Contributing
 
@@ -197,14 +247,14 @@ Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you f
 
 ## Authors & contributors
 
-The original setup of this repository is by [FULL_NAME](https://github.com/GITHUB_USERNAME).
+The original setup of this repository is by [Payadel](https://github.com/Payadel).
 
 For a full list of all authors and contributors,
-see [the contributors page](https://github.com/GITHUB_USERNAME/REPO_SLUG/contributors).
+see [the contributors page](https://github.com/Payadel/inputs/contributors).
 
 ## Security
 
-PROJECT_NAME follows good practices of security, but 100% security cannot be assured. PROJECT_NAME is provided **"as
+This project follows good practices of security, but 100% security cannot be assured. This project is provided **"as
 is"** without any **warranty**.
 
 _For more information and to report security issues, please refer to our [security documentation](docs/SECURITY.md)._
@@ -214,17 +264,3 @@ _For more information and to report security issues, please refer to our [securi
 This project is licensed under the **GPLv3**.
 
 See [LICENSE](LICENSE) for more information.
-
-## Acknowledgements
-
-> **[?]**
-> If your work was funded by any organization or institution, acknowledge their support here.
-> In addition, if your work relies on other software libraries, or was inspired by looking at other work, it is appropriate to acknowledge this intellectual debt too.
-
-## Related
-
-Here are some related projects
-
-[Awesome README](https://github.com/matiassingers/awesome-readme)
-
-
