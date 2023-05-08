@@ -33,17 +33,16 @@ This action solves two main problems:
 
 #### Problem 1:
 
-In some GitHub Actions require variables that can be changed if necessary, which is possible
-through `workflow_dispatch` inputs. By defining the `workflow_dispatch`, we can execute the GitHub Action manually and
+Some GitHub Actions require variables that can be changed through `workflow_dispatch` inputs.
+By defining the `workflow_dispatch`, we can execute the GitHub Action manually and
 specify inputs for it, as well as **set default values** for inputs.
 
-However, sometimes we need our GitHub Action to run **both** manually with input parameters and with other events, such
-as pushing to a specific branch. The Default values of `workflow_dispatch` only exist when the action is executed *
-*manually**, and will not be set if the action is executed with other events.
+However, sometimes we need our GitHub Action to run **both** manually and with other events.
+The Default values of `workflow_dispatch` only exist when the action is executed **manually**, 
+and will not be set if the action is executed with other events.
 it can be difficult to manage inputs in a way that is both convenient and safe.
 
-**Solution:** This is where the Inputs GitHub Action comes in.
-With this action, you can manage inputs in a much easier and better way.
+**Solution:** With this action, you can manage inputs in a much easier and better way.
 The action allows you to specify inputs and default values with a simple and convenient `YAML` structure. If the action
 is executed manually, the inputs of `workflow_dispatch` are set in the output. However, if there is no input or the
 action is executed with other events, the default value specified in the action is set in the output.
@@ -53,11 +52,18 @@ This GitHub Action aims to solve this problem by providing a **simple** and effe
 #### Problem 2:
 
 For future logs or debugging an action, we need to know exactly what parameters each action was executed
-with. For this, it is better to log the variables in Action GitHub. But this will be tedious, not clean and increase the
+with. For this, it is better to **log the variables** in Action GitHub. But this will be tedious, not clean and increase the
 possibility of error.
 
 **Solution:** To solve this problem, this action logs inputs by default (both `workflow_dispatch` inputs and those
 passed to the action with the YAML structure).
+
+#### Problem 3:
+
+Logging inputs is not necessarily enough. Our action may be executed in different conditions. For example, it may be important for us to know on which branch this action was performed? Or maybe we want to use the brunch name in other steps.
+Or maybe it is necessary to read a file and save it in a variable or save the result of a shell command in a variable to use in the next steps.
+
+**Solution:** With the help of this action, you can save any command that can be executed and accessible in GitHub, log the result and use it easily in the next steps. 😎
 
 ### What is the purpose of your project?
 
@@ -111,9 +117,18 @@ jobs:
           inputs: |
             - name: 'my_input'
               default: 'my default value'
+            
+            - name: current-branch-name  # Define new variable and save result of below command
+              default: '$(git rev-parse --abbrev-ref HEAD)'  # Returns current branch name. For example: `main`
+            
+            - name: file-content  
+              default: '$(cat my-file.txt)'  # Read `my-file.txt` and save contents in `file-content` variable
 
       # How use inputs?
-      # Sample: ${{ steps.inputs.outputs.my_input }}
+      # Samples:
+      #   ${{ steps.inputs.outputs.my_input }}
+      #   ${{ steps.inputs.outputs.current-branch-name }}
+      #   ${{ steps.inputs.outputs.file-content }}
 
 ```
 
