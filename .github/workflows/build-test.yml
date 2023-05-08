@@ -88,5 +88,5 @@ jobs:
               actual: '${{ steps.inputs.outputs.input-choice }}'
 
             - name: 'test input-boolean'
-              type: False
+              type: 'False'
               input: '${{ steps.inputs.outputs.input-boolean }}'

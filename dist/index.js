@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DEFAULT_INPUTS = void 0;
 exports.DEFAULT_INPUTS = {
     logInputs: true,
-    inputsYaml: [],
+    yamlInputs: [],
 };
 //# sourceMappingURL=configs.js.map
 
@@ -51,14 +51,33 @@ const yaml = __importStar(__nccwpck_require__(1917));
 const configs_1 = __nccwpck_require__(7905);
 const getInputs = () => new Promise(resolve => {
     var _a;
-    const inputs = (0, utility_1.getInputOrDefault)("inputs", "", true, false);
-    const parsedYaml = yaml.load(inputs);
     return resolve({
-        inputsYaml: parsedYaml,
+        yamlInputs: getValidatedYamlInput(),
         logInputs: (_a = (0, utility_1.getBooleanInputOrDefault)("log-inputs", undefined)) !== null && _a !== void 0 ? _a : configs_1.DEFAULT_INPUTS.logInputs,
     });
 });
 exports.getInputs = getInputs;
+function getValidatedYamlInput() {
+    const yamlInputsStr = (0, utility_1.getInputOrDefault)("inputs", undefined, true, false);
+    if (!yamlInputsStr)
+        return configs_1.DEFAULT_INPUTS.yamlInputs;
+    const parsedYaml = yaml.load(yamlInputsStr);
+    ensureYamlIsValid(parsedYaml);
+    return parsedYaml;
+}
+function ensureYamlIsValid(parsedYaml) {
+    //Every item must has name and default key
+    for (const item of parsedYaml) {
+        if (!item.name)
+            throw new Error(`The 'name' parameter is required.`);
+        if (!item.default)
+            throw new Error(`The 'default' parameter is required.\nItem:\n\t${JSON.stringify(item)}`);
+    }
+    // The name can not be repetitive.
+    const repetitiveKeys = (0, utility_1.findRepetitiveItems)(parsedYaml.map(item => item.name));
+    if (repetitiveKeys.length > 0)
+        throw new Error(`Repetitive keys is not allowed: ${repetitiveKeys.join(", ")}`);
+}
 //# sourceMappingURL=inputs.js.map
 
 /***/ }),
@@ -75,6 +94,49 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const run_1 = __importDefault(__nccwpck_require__(7884));
 (0, run_1.default)();
 //# sourceMappingURL=main.js.map
+
+/***/ }),
+
+/***/ 5314:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setOutputs = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+function setOutputs(data, log) {
+    for (const key of Object.keys(data)) {
+        core.setOutput(key, data[key]);
+        if (log)
+            core.info(`${key}: ${data[key]}`);
+    }
+}
+exports.setOutputs = setOutputs;
+//# sourceMappingURL=outputs.js.map
 
 /***/ }),
 
@@ -108,8 +170,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const inputs_1 = __nccwpck_require__(6180);
 const github = __importStar(__nccwpck_require__(5438));
+const inputs_1 = __nccwpck_require__(6180);
+const outputs_1 = __nccwpck_require__(5314);
 const run = () => _mainProcess()
     .then(() => core.info("Operation completed successfully."))
     .catch(error => {
@@ -119,17 +182,26 @@ const run = () => _mainProcess()
 exports["default"] = run;
 function _mainProcess() {
     return (0, inputs_1.getInputs)().then(actionInputs => {
-        // Get inputs from GitHub context
-        const contextInputs = github.context.payload.inputs;
-        for (const inputName in contextInputs) {
-            //set inputs to outputs
-            const inputValue = contextInputs[inputName];
-            core.setOutput(inputName, inputValue);
-            //Log inputs if is requested.
-            if (actionInputs.logInputs)
-                core.info(`${inputName}: ${inputValue}`);
-        }
+        const allInputs = combineAllInputs(actionInputs.yamlInputs, github.context.payload.inputs);
+        (0, outputs_1.setOutputs)(allInputs, actionInputs.logInputs);
     });
+}
+function combineAllInputs(yamlInputs, githubInputs) {
+    const keys = getAllKeys(yamlInputs, githubInputs);
+    //Combine inputs with GitHub context priority.
+    const result = {};
+    for (const key of keys) {
+        if (githubInputs && githubInputs[key])
+            result[key] = githubInputs[key];
+        else
+            result[key] = yamlInputs.find(input => input.name.toLowerCase() === key).default;
+    }
+    return result;
+}
+function getAllKeys(yamlInputs, githubInputs) {
+    const yamlKeys = yamlInputs ? yamlInputs.map(input => input.name) : [];
+    const githubKeys = githubInputs ? Object.keys(githubInputs) : [];
+    return yamlKeys.concat(githubKeys);
 }
 //# sourceMappingURL=run.js.map
 
@@ -164,7 +236,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getBooleanInputOrDefault = exports.getInputOrDefault = void 0;
+exports.findRepetitiveItems = exports.getBooleanInputOrDefault = exports.getInputOrDefault = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 function getInputOrDefault(name, default_value = undefined, trimWhitespace = true, required = false) {
     const input = core.getInput(name, {
@@ -191,6 +263,20 @@ function getBooleanInputOrDefault(name, defaultValue = undefined, required = fal
     throw new TypeError(`The value of '${name}' is not valid. It must be either true or false but got '${input}'.`);
 }
 exports.getBooleanInputOrDefault = getBooleanInputOrDefault;
+function findRepetitiveItems(strings) {
+    const count = {};
+    for (const string of strings) {
+        count[string] = (count[string] || 0) + 1;
+    }
+    const result = [];
+    for (const string in count) {
+        if (count[string] > 1) {
+            result.push(string);
+        }
+    }
+    return result;
+}
+exports.findRepetitiveItems = findRepetitiveItems;
 //# sourceMappingURL=utility.js.map
 
 /***/ }),
