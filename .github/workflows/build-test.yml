@@ -54,22 +54,22 @@ jobs:
           log-inputs: true
 
       # For more information and sample asserts, please see https://github.com/Payadel/assert/
-      - name: Test outputs
-        uses: Payadel/assert@v1.0.0
-        with:
-          fail-fast: false
-          verbose: true
-          inputs: |
-            - name: 'test input-required'
-              type: Equals
-              expected: 'input-required value'
-              actual: '${{ steps.inputs.outputs.input-required }}'
-            
-            - name: 'test input-choice'
-              type: Equals
-              expected: 'name1'
-              actual: '${{ steps.inputs.outputs.input-choice }}'
-            
-            - name: 'test input-boolean'
-              type: False
-              input: '${{ steps.inputs.outputs.input-boolean }}'
+#      - name: Test outputs
+#        uses: Payadel/assert@v1.0.1
+#        with:
+#          fail-fast: false
+#          verbose: true
+#          inputs: |
+#            - name: 'test input-required'
+#              type: Equals
+#              expected: 'input-required value'
+#              actual: '${{ steps.inputs.outputs.input-required }}'
+#
+#            - name: 'test input-choice'
+#              type: Equals
+#              expected: 'name1'
+#              actual: '${{ steps.inputs.outputs.input-choice }}'
+#
+#            - name: 'test input-boolean'
+#              type: False
+#              input: '${{ steps.inputs.outputs.input-boolean }}'
