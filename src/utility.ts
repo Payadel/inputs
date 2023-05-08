@@ -39,3 +39,19 @@ export function getBooleanInputOrDefault(
         `The value of '${name}' is not valid. It must be either true or false but got '${input}'.`
     );
 }
+
+export function findRepetitiveItems(strings: string[]): string[] {
+    const count: { [key: string]: number } = {};
+    for (const string of strings) {
+        count[string] = (count[string] || 0) + 1;
+    }
+
+    const result: string[] = [];
+    for (const string in count) {
+        if (count[string] > 1) {
+            result.push(string);
+        }
+    }
+
+    return result;
+}

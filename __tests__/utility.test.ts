@@ -1,5 +1,9 @@
 import * as core from "@actions/core";
-import { getBooleanInputOrDefault, getInputOrDefault } from "../src/utility";
+import {
+    findRepetitiveItems,
+    getBooleanInputOrDefault,
+    getInputOrDefault,
+} from "../src/utility";
 import { mockGetInput } from "./mocks.utility";
 
 describe("getInputOrDefault", () => {
@@ -96,5 +100,28 @@ describe("getBooleanInputOrDefault", () => {
         expect(() => getBooleanInputOrDefault("test2", true)).toThrow(
             "The value of 'test2' is not valid. It must be either true or false but got 'invalid'."
         );
+    });
+});
+
+describe("findRepetitiveItems", () => {
+    it("give empty input, should return empty list", () => {
+        expect(findRepetitiveItems([]).length).toBe(0);
+    });
+
+    it("give a list that hasn't repetitive items, should return empty list", () => {
+        expect(findRepetitiveItems(["a", "b", "c", "d"]).length).toBe(0);
+    });
+
+    it("give a list that has repetitive items, should return repetitive items", () => {
+        const repetitiveItems = findRepetitiveItems([
+            "a",
+            "b",
+            "c",
+            "d",
+            "b",
+            "c",
+        ]);
+
+        expect(repetitiveItems.join(" ")).toBe("b c");
     });
 });
