@@ -1,6 +1,8 @@
 import run from "../src/run";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+import { mockGetInput } from "./mocks.utility";
+import { assertOutput } from "./asserts.utility";
 
 jest.mock("@actions/core");
 jest.mock("@actions/github");
@@ -20,6 +22,7 @@ describe("run", () => {
         await run();
 
         // Assert
+        expect(infoMock).toBeCalledTimes(1);
         expect(infoMock).toHaveBeenCalledWith(
             `Operation completed successfully.`
         );
@@ -40,13 +43,40 @@ describe("run", () => {
         (github.context.payload.inputs as any) = inputsPayload;
 
         // Act
-        await run();
+        await expect(run()).resolves;
 
         // Assert
-        expect(setOutputMock).toHaveBeenCalledWith("input1", "value1");
-        expect(infoMock).toHaveBeenCalledWith("input1: value1");
+        assertOutput(inputsPayload, setOutputMock, infoMock);
+    });
 
-        expect(setOutputMock).toHaveBeenCalledWith("input2", "value2");
-        expect(infoMock).toHaveBeenCalledWith("input2: value2");
+    it("should process yaml inputs", async () => {
+        // Arrange
+        const setOutputMock = jest.spyOn(core, "setOutput");
+        const infoMock = jest.spyOn(core, "info");
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'param1'
+  default: 'value1'
+- name: 'param2'
+  default: 'value2'
+    `,
+                    },
+                    options
+                )
+        );
+
+        // Act
+        await expect(run()).resolves;
+
+        // Assert
+        assertOutput(
+            { param1: "value1", param2: "value2" },
+            setOutputMock,
+            infoMock
+        );
     });
 });
