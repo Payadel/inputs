@@ -44,7 +44,7 @@ jobs:
             - name: version
               default: ''
             - name: create-pr-for-branch
-              default: 'master'
+              default: 'main'
             - name: generate-changelog
               default: 'auto'
             - name: current-branch-name
