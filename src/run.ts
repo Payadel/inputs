@@ -17,7 +17,7 @@ export default run;
 
 function _mainProcess(): Promise<void> {
     return getInputs().then(actionInputs => {
-        const allInputs = combineAllInputs(
+        const allInputs = combineInputs(
             actionInputs.yamlInputs,
             github.context.payload.inputs
         );
@@ -26,20 +26,32 @@ function _mainProcess(): Promise<void> {
     });
 }
 
-function combineAllInputs(
+function combineInputs(
     yamlInputs: IYamlInput[],
     githubInputs: { [key: string]: string } | undefined
-): { [key: string]: string } {
+): IYamlInput[] {
+    if (!githubInputs) return yamlInputs;
+
     const keys = getAllKeys(yamlInputs, githubInputs);
 
     //Combine inputs with GitHub context priority.
-    const result: { [key: string]: string } = {};
+    const result: IYamlInput[] = [];
     for (const key of keys) {
-        if (githubInputs && githubInputs[key]) result[key] = githubInputs[key];
-        else
-            result[key] = yamlInputs.find(
+        if (githubInputs && githubInputs[key]) {
+            result.push({
+                name: key,
+                default: githubInputs[key],
+            });
+        } else {
+            const target = yamlInputs.find(
                 input => input.name.toLowerCase() === key
-            )!.default;
+            );
+            if (!target)
+                throw new Error(
+                    `Unexpected error in combine inputs! Expect to find item ${key} in inputs but can not.`
+                );
+            result.push(target);
+        }
     }
 
     return result;

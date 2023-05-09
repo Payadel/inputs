@@ -14,6 +14,7 @@ export interface IInputs {
 export interface IYamlInput {
     name: string;
     default: string;
+    label?: string;
 }
 
 export const getInputs = (): Promise<IInputs> =>
