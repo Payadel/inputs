@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/Payadel/inputs/compare/v0.2.2...v0.2.3) (2023-05-09)
+
+
+### Fixes
+
+* add `verbose` to action.yml ([d30a0b4](https://github.com/Payadel/inputs/commit/d30a0b45ecc0a776f34aab9f520a589e260cd825))
+
 ### [0.2.2](https://github.com/Payadel/inputs/compare/v0.2.1...v0.2.2) (2023-05-09)
 
 
