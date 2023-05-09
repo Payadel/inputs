@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/Payadel/inputs/compare/v0.2.0...v0.2.1) (2023-05-09)
+
+
+### Features
+
+* add `verbose` mode ([c3f78c7](https://github.com/Payadel/inputs/commit/c3f78c7ea94dbbe3ccffc04114c84aa2a098fb2d))
+
 ## [0.2.0](https://github.com/Payadel/inputs/compare/v0.1.0...v0.2.0) (2023-05-09)
 
 
