@@ -13,6 +13,10 @@ inputs:
     description: log inputs or not?
     default: 'true'
     required: false
+  verbose:
+    description: log more data or not?
+    default: 'false'
+    required: false
 
 runs:
   using: 'node16'
