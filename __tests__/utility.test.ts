@@ -1,11 +1,13 @@
 import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 import {
     areKeysValid,
+    execCommand,
     findRepetitiveItems,
     getBooleanInputOrDefault,
     getInputOrDefault,
 } from "../src/utility";
-import { mockGetInput } from "./mocks.utility";
+import { mockGetExecOutput, mockGetInput } from "./mocks.utility";
 
 describe("getInputOrDefault", () => {
     jest.mock("@actions/core");
@@ -140,5 +142,55 @@ describe("areKeysValid", () => {
         expect(
             areKeysValid(["key1", "key2"], ["key1", "key2", "invalid"])
         ).toBe(false);
+    });
+});
+
+describe("execCommand", () => {
+    jest.mock("@actions/exec");
+
+    beforeEach(() => {
+        jest.resetAllMocks();
+    });
+
+    test("should execute command successfully", async () => {
+        jest.spyOn(exec, "getExecOutput").mockImplementation(command =>
+            mockGetExecOutput(command, [
+                {
+                    command: 'echo "Hello World"',
+                    success: true,
+                    resolve: {
+                        stdout: "Hello World",
+                        stderr: "",
+                        exitCode: 0,
+                    },
+                },
+            ])
+        );
+
+        const output = await execCommand('echo "Hello World"');
+        expect(output.stdout.trim()).toBe("Hello World");
+        expect(output.stderr).toBeFalsy();
+        expect(output.exitCode).toBe(0);
+    });
+
+    test("should throw an error when the command fails", async () => {
+        jest.spyOn(exec, "getExecOutput").mockImplementation(command =>
+            mockGetExecOutput(command, [])
+        );
+
+        await expect(execCommand("invalid-command")).rejects.toThrow(
+            "Execute 'invalid-command' failed."
+        );
+    });
+
+    test("should throw an error with custom error message when provided", async () => {
+        jest.spyOn(exec, "getExecOutput").mockImplementation(command =>
+            mockGetExecOutput(command, [])
+        );
+
+        const customMessage = "Custom error message";
+        await expect(
+            execCommand("invalid-command", customMessage)
+        ).rejects.toThrow(new RegExp(customMessage));
     });
 });

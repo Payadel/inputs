@@ -1,19 +1,21 @@
 import run from "../src/run";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { mockGetInput } from "./mocks.utility";
+import { mockGetExecOutput, mockGetInput } from "./mocks.utility";
 import { assertOutput } from "./asserts.utility";
 import { DEFAULT_INPUTS } from "../src/configs";
+import * as exec from "@actions/exec";
 
 jest.mock("@actions/core");
 jest.mock("@actions/github");
+jest.mock("@actions/exec");
 
 describe("run", () => {
     beforeEach(() => {
         jest.resetAllMocks();
     });
 
-    it("when not any inputs provided, should resolve successful", async () => {
+    it("not any inputs provided, should resolve successful", async () => {
         // Arrange
         const infoMock = jest.spyOn(core, "info");
         const errorMock = jest.spyOn(core, "error");
@@ -43,7 +45,7 @@ describe("run", () => {
         };
 
         // Act
-        await expect(run(DEFAULT_INPUTS)).resolves;
+        await run(DEFAULT_INPUTS);
 
         // Assert
         assertOutput(
@@ -83,7 +85,7 @@ describe("run", () => {
         );
 
         // Act
-        await expect(run(DEFAULT_INPUTS)).resolves;
+        await run(DEFAULT_INPUTS);
 
         // Assert
         assertOutput(
@@ -131,7 +133,7 @@ describe("run", () => {
         };
 
         // Act
-        await expect(run(DEFAULT_INPUTS)).resolves;
+        await run(DEFAULT_INPUTS);
 
         // Assert
         assertOutput(
@@ -160,6 +162,60 @@ describe("run", () => {
             ],
             setOutputMock,
             infoMock
+        );
+    });
+
+    it("give text that has command", async () => {
+        // Arrange
+        jest.spyOn(exec, "getExecOutput").mockImplementation(command =>
+            mockGetExecOutput(command, [
+                {
+                    command: "git rev-parse --abbrev-ref HEAD",
+                    success: true,
+                    resolve: {
+                        stdout: "main",
+                        stderr: "",
+                        exitCode: 0,
+                    },
+                },
+            ])
+        );
+
+        const setOutputMock = jest.spyOn(core, "setOutput");
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'command'
+  default: 'The current branch is $(git rev-parse --abbrev-ref HEAD).'
+- name: 'skip-command'
+  default: 'do not execute this command: $(git rev-parse --abbrev-ref HEAD)'
+  skipCommands: true
+    `,
+                    },
+                    options
+                )
+        );
+
+        // Act
+        await run(DEFAULT_INPUTS);
+
+        // Assert
+        assertOutput(
+            [
+                {
+                    name: "command",
+                    default: "The current branch is main.",
+                },
+                {
+                    name: "skip-command",
+                    default:
+                        "do not execute this command: $(git rev-parse --abbrev-ref HEAD)",
+                },
+            ],
+            setOutputMock
         );
     });
 });

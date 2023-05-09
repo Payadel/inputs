@@ -122,13 +122,14 @@ jobs:
           inputs: |
             - name: 'my_input'
               default: 'my default value'
+              label: 'my sample input'  # Label is for logging and it is optional. If is not provided we use variable name
 
             - name: current-branch-name  # Define new variable and save result of below command
               default: '$(git rev-parse --abbrev-ref HEAD)'  # Returns current branch name. For example: `main`
 
             - name: file-content  
               default: '$(cat my-file.txt)'  # Read `my-file.txt` and save contents in `file-content` variable
-              label: 'my file contents'  # Label is for logging and it is optional. If is not provided we use variable name
+              skipCommands: false  # Default is false.
 
       # How use inputs?
       # Samples:
@@ -193,6 +194,7 @@ set this input to `'false'`.
 | name         | string             | The name of the variable.                                                          |
 | default      | string             | The default value for the variable.                                                |
 | label        | string (optional)  | The label for the variable in logging.                                             |
+| skipCommands | boolean (optional) | Set this to `true` to skip processing text commands. The default value is `false`. |
 
 ## CHANGELOG
 

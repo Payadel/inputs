@@ -15,9 +15,10 @@ export interface IYamlInput {
     name: string;
     default: string;
     label?: string;
+    skipCommands?: boolean;
 }
 
-export const VALID_YAML_KEYS = ["name", "default", "label"];
+export const VALID_YAML_KEYS = ["name", "default", "label", "skipCommands"];
 
 export const getInputs = (defaultInputs: IInputs): Promise<IInputs> =>
     new Promise<IInputs>(resolve => {

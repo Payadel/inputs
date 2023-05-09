@@ -1,4 +1,5 @@
 import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 
 export function getInputOrDefault(
     name: string,
@@ -67,4 +68,19 @@ export function areKeysValid(
         if (!validList.includes(item)) return false;
     }
     return true;
+}
+
+export function execCommand(
+    command: string,
+    errorMessage?: string,
+    args?: string[] | undefined,
+    options?: exec.ExecOptions | undefined
+): Promise<exec.ExecOutput> {
+    core.debug(`Execute command: ${command}`);
+    return exec.getExecOutput(command, args, options).catch(error => {
+        const title = errorMessage || `Execute '${command}' failed.`;
+        const message =
+            error instanceof Error ? error.message : error.toString();
+        throw new Error(`${title}\n${message}`);
+    });
 }
