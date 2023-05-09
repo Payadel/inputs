@@ -6,7 +6,9 @@ import { executeCommands } from "./execCommands";
 
 const run = (defaultInputs: IInputs): Promise<void> =>
     _mainProcess(defaultInputs)
-        .then(() => core.info("Operation completed successfully."))
+        .then(inputs => {
+            if (inputs.verbose) core.info("Operation completed successfully.");
+        })
         .catch(error => {
             core.error("Operation failed.");
             core.setFailed(
@@ -16,16 +18,19 @@ const run = (defaultInputs: IInputs): Promise<void> =>
 
 export default run;
 
-function _mainProcess(defaultInputs: IInputs): Promise<void> {
+function _mainProcess(defaultInputs: IInputs): Promise<IInputs> {
     return getInputs(defaultInputs).then(actionInputs => {
         const allInputs = combineInputs(
             actionInputs.yamlInputs,
             github.context.payload.inputs
         );
 
-        return _executeCommands(allInputs, actionInputs.verbose).then(() =>
-            setOutputs(allInputs, actionInputs.logInputs)
-        );
+        return _executeCommands(allInputs, actionInputs.verbose)
+            .then(() => setOutputs(allInputs, actionInputs.logInputs))
+            .then(() => {
+                actionInputs.yamlInputs = allInputs;
+                return actionInputs;
+            });
     });
 }
 
