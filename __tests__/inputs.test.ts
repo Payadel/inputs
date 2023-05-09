@@ -137,4 +137,32 @@ Valid keys: ${VALID_YAML_KEYS.join(", ")}`
 
         await expect(getInputs(DEFAULT_INPUTS)).resolves;
     });
+
+    it("give invalid variable name", async () => {
+        let variableName = "contain space";
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    { inputs: `- name: '${variableName}'` },
+                    options
+                )
+        );
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
+            `The variable name ${variableName} is not valid. It must start with (a letter or _) and only contain (letter, number, _ and -).`
+        );
+
+        variableName = "1start-with-number";
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    { inputs: `- name: '${variableName}'` },
+                    options
+                )
+        );
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
+            `The variable name ${variableName} is not valid. It must start with (a letter or _) and only contain (letter, number, _ and -).`
+        );
+    });
 });

@@ -42,7 +42,7 @@ function getValidatedYamlInput(defaultYamlInput: IYamlInput[]): IYamlInput[] {
 function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
     //Every item must has name and default key
     for (const item of parsedYaml) {
-        if (!item.name) throw new Error(`The 'name' parameter is required.`);
+        ensureNameIsValid(item.name);
 
         const itemKeys = Object.keys(item);
         if (!areKeysValid(VALID_YAML_KEYS, itemKeys))
@@ -67,5 +67,14 @@ function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
     if (repetitiveKeys.length > 0)
         throw new Error(
             `Repetitive keys is not allowed: ${repetitiveKeys.join(", ")}`
+        );
+}
+
+function ensureNameIsValid(name?: string): void {
+    if (!name) throw new Error(`The 'name' parameter is required.`);
+    const variableNameRegex = /^([a-zA-Z_][a-zA-Z0-9_-]*)$/;
+    if (!variableNameRegex.test(name))
+        throw new Error(
+            `The variable name ${name} is not valid. It must start with (a letter or _) and only contain (letter, number, _ and -).`
         );
 }
