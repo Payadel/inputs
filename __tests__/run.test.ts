@@ -37,17 +37,29 @@ describe("run", () => {
         const setOutputMock = jest.spyOn(core, "setOutput");
         const infoMock = jest.spyOn(core, "info");
 
-        const inputsPayload = {
+        (github.context.payload.inputs as any) = {
             input1: "value1",
             input2: "value2",
         };
-        (github.context.payload.inputs as any) = inputsPayload;
 
         // Act
         await expect(run(DEFAULT_INPUTS)).resolves;
 
         // Assert
-        assertOutput(inputsPayload, setOutputMock, infoMock);
+        assertOutput(
+            [
+                {
+                    name: "input1",
+                    default: "value1",
+                },
+                {
+                    name: "input2",
+                    default: "value2",
+                },
+            ],
+            setOutputMock,
+            infoMock
+        );
     });
 
     it("should process yaml inputs", async () => {
@@ -75,7 +87,16 @@ describe("run", () => {
 
         // Assert
         assertOutput(
-            { param1: "value1", param2: "value2" },
+            [
+                {
+                    name: "param1",
+                    default: "value1",
+                },
+                {
+                    name: "param2",
+                    default: "value2",
+                },
+            ],
             setOutputMock,
             infoMock
         );
@@ -97,6 +118,7 @@ describe("run", () => {
   default: 'value2'
 - name: 'commonInput'
   default: 'yaml'
+  label: 'common input'
     `,
                     },
                     options
@@ -113,13 +135,29 @@ describe("run", () => {
 
         // Assert
         assertOutput(
-            {
-                input1: "value1",
-                input2: "value2",
-                param1: "value1",
-                param2: "value2",
-                commonInput: "github", //priority with GitHub context
-            },
+            [
+                {
+                    name: "input1",
+                    default: "value1",
+                },
+                {
+                    name: "input2",
+                    default: "value2",
+                },
+                {
+                    name: "param1",
+                    default: "value1",
+                },
+                {
+                    name: "param2",
+                    default: "value2",
+                },
+                {
+                    name: "commonInput",
+                    default: "github",
+                    label: "common input",
+                },
+            ],
             setOutputMock,
             infoMock
         );
