@@ -4,7 +4,6 @@ import {
     getInputOrDefault,
 } from "./utility";
 import * as yaml from "js-yaml";
-import { DEFAULT_INPUTS } from "./configs";
 
 export interface IInputs {
     yamlInputs: IYamlInput[];
@@ -17,19 +16,19 @@ export interface IYamlInput {
     label?: string;
 }
 
-export const getInputs = (): Promise<IInputs> =>
+export const getInputs = (defaultInputs: IInputs): Promise<IInputs> =>
     new Promise<IInputs>(resolve => {
         return resolve({
-            yamlInputs: getValidatedYamlInput(),
+            yamlInputs: getValidatedYamlInput(defaultInputs.yamlInputs),
             logInputs:
                 getBooleanInputOrDefault("log-inputs", undefined) ??
-                DEFAULT_INPUTS.logInputs,
+                defaultInputs.logInputs,
         });
     });
 
-function getValidatedYamlInput(): IYamlInput[] {
+function getValidatedYamlInput(defaultYamlInput: IYamlInput[]): IYamlInput[] {
     const yamlInputsStr = getInputOrDefault("inputs", undefined, true, false);
-    if (!yamlInputsStr) return DEFAULT_INPUTS.yamlInputs;
+    if (!yamlInputsStr) return defaultYamlInput;
 
     const parsedYaml = yaml.load(yamlInputsStr);
     ensureYamlIsValid(parsedYaml);

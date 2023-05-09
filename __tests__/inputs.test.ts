@@ -16,7 +16,7 @@ describe("getInputs", () => {
                 mockGetInput(name, {}, options)
         );
 
-        const inputs: IInputs = await getInputs();
+        const inputs: IInputs = await getInputs(DEFAULT_INPUTS);
 
         expect(inputs.logInputs).toBe(DEFAULT_INPUTS.logInputs);
         expect(inputs.yamlInputs).toBe(DEFAULT_INPUTS.yamlInputs);
@@ -27,7 +27,7 @@ describe("getInputs", () => {
             (name: string, options?: core.InputOptions | undefined) =>
                 mockGetInput(name, { inputs: "invalid yaml" }, options)
         );
-        await expect(getInputs()).rejects.toThrow(
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
             "The 'name' parameter is required."
         );
 
@@ -43,7 +43,7 @@ describe("getInputs", () => {
                     options
                 )
         );
-        await expect(getInputs()).rejects.toThrow(
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
             `The 'default' parameter is required.
 Item:
 \t{"name":"param"}`
@@ -69,7 +69,7 @@ Item:
                 )
         );
 
-        await expect(getInputs()).rejects.toThrow(
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
             `Repetitive keys is not allowed: param1`
         );
     });
@@ -91,7 +91,7 @@ Item:
                 )
         );
 
-        await expect(getInputs()).resolves;
+        await expect(getInputs(DEFAULT_INPUTS)).resolves;
     });
 
     it("the default key is exist but empty, should resolve", async () => {
@@ -111,6 +111,6 @@ Item:
                 )
         );
 
-        await expect(getInputs()).resolves;
+        await expect(getInputs(DEFAULT_INPUTS)).resolves;
     });
 });

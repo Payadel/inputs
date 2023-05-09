@@ -3,6 +3,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { mockGetInput } from "./mocks.utility";
 import { assertOutput } from "./asserts.utility";
+import { DEFAULT_INPUTS } from "../src/configs";
 
 jest.mock("@actions/core");
 jest.mock("@actions/github");
@@ -19,7 +20,7 @@ describe("run", () => {
         const setFailedMock = jest.spyOn(core, "setFailed");
 
         // Act
-        await run();
+        await run(DEFAULT_INPUTS);
 
         // Assert
         expect(infoMock).toBeCalledTimes(1);
@@ -43,7 +44,7 @@ describe("run", () => {
         (github.context.payload.inputs as any) = inputsPayload;
 
         // Act
-        await expect(run()).resolves;
+        await expect(run(DEFAULT_INPUTS)).resolves;
 
         // Assert
         assertOutput(inputsPayload, setOutputMock, infoMock);
@@ -70,7 +71,7 @@ describe("run", () => {
         );
 
         // Act
-        await expect(run()).resolves;
+        await expect(run(DEFAULT_INPUTS)).resolves;
 
         // Assert
         assertOutput(
@@ -108,7 +109,7 @@ describe("run", () => {
         };
 
         // Act
-        await expect(run()).resolves;
+        await expect(run(DEFAULT_INPUTS)).resolves;
 
         // Assert
         assertOutput(
