@@ -23,17 +23,20 @@ function _mainProcess(defaultInputs: IInputs): Promise<void> {
             github.context.payload.inputs
         );
 
-        return _executeCommands(allInputs).then(() =>
+        return _executeCommands(allInputs, actionInputs.verbose).then(() =>
             setOutputs(allInputs, actionInputs.logInputs)
         );
     });
 }
 
-async function _executeCommands(inputs: IYamlInput[]): Promise<void> {
+async function _executeCommands(
+    inputs: IYamlInput[],
+    verbose: boolean
+): Promise<void> {
     for (const input of inputs) {
         if (input.skipCommands) continue;
 
-        await executeCommands(input.default).then(
+        await executeCommands(input.default, verbose).then(
             result => (input.default = result)
         );
     }

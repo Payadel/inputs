@@ -1,6 +1,6 @@
 {
   "name": "inputs-github-action",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A GitHub action that helps you better manage the input of your GitHub action.",
   "main": "lib/main.js",
   "scripts": {

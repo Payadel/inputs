@@ -2,7 +2,10 @@ import { execCommand } from "./utility";
 
 export const COMMAND_REGEX = /\$\((.*?)\)/g;
 
-export async function executeCommands(str: string): Promise<string> {
+export async function executeCommands(
+    str: string,
+    verbose = false
+): Promise<string> {
     if (str === undefined || str === null)
         throw new Error("The str parameter is required.");
 
@@ -11,9 +14,9 @@ export async function executeCommands(str: string): Promise<string> {
 
     for (const match of matches) {
         const command = match.substring(2, match.length - 1);
-        const result = await execCommand(command).then(output =>
-            output.stdout.trim()
-        );
+        const result = await execCommand(command, undefined, undefined, {
+            silent: !verbose,
+        }).then(output => output.stdout.trim());
         str = str.replace(match, result);
     }
 

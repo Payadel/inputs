@@ -9,6 +9,7 @@ import * as yaml from "js-yaml";
 export interface IInputs {
     yamlInputs: IYamlInput[];
     logInputs: boolean;
+    verbose: boolean;
 }
 
 export interface IYamlInput {
@@ -27,6 +28,9 @@ export const getInputs = (defaultInputs: IInputs): Promise<IInputs> =>
             logInputs:
                 getBooleanInputOrDefault("log-inputs", undefined) ??
                 defaultInputs.logInputs,
+            verbose:
+                getBooleanInputOrDefault("verbose", undefined) ??
+                defaultInputs.verbose,
         });
     });
 
