@@ -55,3 +55,16 @@ export function findRepetitiveItems(strings: string[]): string[] {
 
     return result;
 }
+
+export function areKeysValid(
+    validList: string[],
+    checkList: string[]
+): boolean {
+    if (!validList) throw new Error("The validList is required.");
+    if (!checkList) throw new Error("The checkList is required.");
+
+    for (const item of checkList) {
+        if (!validList.includes(item)) return false;
+    }
+    return true;
+}

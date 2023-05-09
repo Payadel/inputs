@@ -1,4 +1,5 @@
 import {
+    areKeysValid,
     findRepetitiveItems,
     getBooleanInputOrDefault,
     getInputOrDefault,
@@ -15,6 +16,8 @@ export interface IYamlInput {
     default: string;
     label?: string;
 }
+
+export const VALID_YAML_KEYS = ["name", "default", "label"];
 
 export const getInputs = (defaultInputs: IInputs): Promise<IInputs> =>
     new Promise<IInputs>(resolve => {
@@ -39,6 +42,15 @@ function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
     //Every item must has name and default key
     for (const item of parsedYaml) {
         if (!item.name) throw new Error(`The 'name' parameter is required.`);
+
+        const itemKeys = Object.keys(item);
+        if (!areKeysValid(VALID_YAML_KEYS, itemKeys))
+            throw new Error(
+                `Yaml keys are not valid. It has unexpected key(s).\nItem Keys: ${itemKeys.join(
+                    ", "
+                )}\nValid keys: ${VALID_YAML_KEYS.join(", ")}`
+            );
+
         if (item.default === undefined)
             throw new Error(
                 `The 'default' parameter is required.\nItem:\n\t${JSON.stringify(

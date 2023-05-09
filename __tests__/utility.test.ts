@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import {
+    areKeysValid,
     findRepetitiveItems,
     getBooleanInputOrDefault,
     getInputOrDefault,
@@ -123,5 +124,21 @@ describe("findRepetitiveItems", () => {
         ]);
 
         expect(repetitiveItems.join(" ")).toBe("b c");
+    });
+});
+
+describe("areKeysValid", () => {
+    it("give valid keys", () => {
+        expect(areKeysValid(["key1", "key2"], [])).toBe(true);
+        expect(areKeysValid(["key1", "key2"], ["key1"])).toBe(true);
+        expect(areKeysValid(["key1", "key2"], ["key1", "key2"])).toBe(true);
+    });
+
+    it("give invalid keys", () => {
+        expect(areKeysValid(["key1", "key2"], ["invalid"])).toBe(false);
+        expect(areKeysValid(["key1", "key2"], ["key1", "invalid"])).toBe(false);
+        expect(
+            areKeysValid(["key1", "key2"], ["key1", "key2", "invalid"])
+        ).toBe(false);
     });
 });

@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { getInputs, IInputs } from "../src/inputs";
+import { getInputs, IInputs, VALID_YAML_KEYS } from "../src/inputs";
 import { mockGetInput } from "./mocks.utility";
 import { DEFAULT_INPUTS } from "../src/configs";
 
@@ -47,6 +47,30 @@ describe("getInputs", () => {
             `The 'default' parameter is required.
 Item:
 \t{"name":"param"}`
+        );
+    });
+
+    it("yaml keys are not valid, so should reject", async () => {
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: valid
+  default: valid
+- name: invalid
+  default: invalid
+  invalid-key: invalid
+                `,
+                    },
+                    options
+                )
+        );
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
+            `Yaml keys are not valid. It has unexpected key(s).
+Item Keys: name, default, invalid-key
+Valid keys: ${VALID_YAML_KEYS.join(", ")}`
         );
     });
 
