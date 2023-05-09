@@ -238,7 +238,10 @@ const inputs_1 = __nccwpck_require__(6180);
 const outputs_1 = __nccwpck_require__(5314);
 const execCommands_1 = __nccwpck_require__(2282);
 const run = (defaultInputs) => _mainProcess(defaultInputs)
-    .then(() => core.info("Operation completed successfully."))
+    .then(inputs => {
+    if (inputs.verbose)
+        core.info("Operation completed successfully.");
+})
     .catch(error => {
     core.error("Operation failed.");
     core.setFailed(error instanceof Error ? error.message : error.toString());
@@ -247,7 +250,12 @@ exports["default"] = run;
 function _mainProcess(defaultInputs) {
     return (0, inputs_1.getInputs)(defaultInputs).then(actionInputs => {
         const allInputs = combineInputs(actionInputs.yamlInputs, github.context.payload.inputs);
-        return _executeCommands(allInputs, actionInputs.verbose).then(() => (0, outputs_1.setOutputs)(allInputs, actionInputs.logInputs));
+        return _executeCommands(allInputs, actionInputs.verbose)
+            .then(() => (0, outputs_1.setOutputs)(allInputs, actionInputs.logInputs))
+            .then(() => {
+            actionInputs.yamlInputs = allInputs;
+            return actionInputs;
+        });
     });
 }
 function _executeCommands(inputs, verbose) {
