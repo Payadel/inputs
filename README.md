@@ -196,6 +196,16 @@ set this input to `'false'`.
 | label        | string (optional)  | The label for the variable in logging.                                             |
 | skipCommands | boolean (optional) | Set this to `true` to skip processing text commands. The default value is `false`. |
 
+#### Add Command
+
+Suppose you want to log the branch in which the action was executed or use it in the next steps. For this, you can use
+the Git command `git rev-parse --abbrev-ref HEAD'`.
+This action has the ability to execute your commands. In order for the action to recognize your command, you must put the commands with `$(command)` structure. This action executes the command by default and replaces the output with the command.
+For example:
+result of `The current branch is: $(git rev-parse --abbrev-ref HEAD).` is `The current branch is: main.`
+
+If you want to disable this feature, you can set `skipCommands` to true.
+
 ## CHANGELOG
 
 PLease see the [CHANGELOG.md](CHANGELOG.md) file.
