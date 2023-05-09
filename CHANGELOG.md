@@ -1,7 +1,36 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [0.2.0](https://github.com/Payadel/inputs/compare/v0.1.0...v0.2.0) (2023-05-09)
+
+
+### Features
+
+* support commands ([c890482](https://github.com/Payadel/inputs/commit/c890482421625b502b407c621888b6d7a5463c27))
+* support label in yaml for log. fix [#9](https://github.com/Payadel/inputs/issues/9) ([160197a](https://github.com/Payadel/inputs/commit/160197a035ddee4cef7df60caa609f70fc8b5b45))
+
+
+### Refactors
+
+* get default inputs from function parameter ([1d59172](https://github.com/Payadel/inputs/commit/1d591722ae524d3f0857a49d10453825ab7cbda7))
+
+
+### Fixes
+
+* fix label bug when variable is common ([23c296c](https://github.com/Payadel/inputs/commit/23c296cf7d81a2fbc04e45c0615c1d415f73f9b3))
+* improve yaml validation with check keys ([12a422e](https://github.com/Payadel/inputs/commit/12a422edd1e7493669a210f99c99e2ebfc0d6d57))
+* validate variable name ([57d54de](https://github.com/Payadel/inputs/commit/57d54def2e2502cdd77d7c0fe5bfbc1e85ce819f))
+
+
+### Documents
+
+* add `Add Command` to readme document section ([c9d9522](https://github.com/Payadel/inputs/commit/c9d9522b86e580bc618a16b1f922915b03293708))
+* add label to README.md ([07fd985](https://github.com/Payadel/inputs/commit/07fd985fb8f9a9009f4ddca562002426bc0e4127))
+* update CONTRIBUTING.md ([668a1ce](https://github.com/Payadel/inputs/commit/668a1ce9e0f2ba0aecebcbee4e31dca3712f6e32))
+* update README.md ([552f0a3](https://github.com/Payadel/inputs/commit/552f0a39b2a6b176fabcb42f2cbb47babd3ac3a6))
+* update README.md ([a9de7e3](https://github.com/Payadel/inputs/commit/a9de7e317851039668159d09685eface27438f40))
+* update version in README.md ([bceb2f2](https://github.com/Payadel/inputs/commit/bceb2f22a4b7f78aaab1c579f465774c4ce999f2))
 
 ## 0.1.0 (2023-05-08)
 
