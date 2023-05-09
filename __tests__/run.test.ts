@@ -21,8 +21,11 @@ describe("run", () => {
         const errorMock = jest.spyOn(core, "error");
         const setFailedMock = jest.spyOn(core, "setFailed");
 
+        const defaultInputs = DEFAULT_INPUTS;
+        defaultInputs.verbose = true;
+
         // Act
-        await run(DEFAULT_INPUTS);
+        await run(defaultInputs);
 
         // Assert
         expect(infoMock).toBeCalledTimes(1);
