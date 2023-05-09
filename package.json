@@ -1,6 +1,6 @@
 {
   "name": "inputs-github-action",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A GitHub action that helps you better manage the input of your GitHub action.",
   "main": "lib/main.js",
   "scripts": {
@@ -34,7 +34,8 @@
   "homepage": "https://github.com/Payadel/inputs#readme",
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "@actions/github": "^5.1.1"
+    "@actions/github": "^5.1.1",
+    "@actions/exec": "^1.1.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

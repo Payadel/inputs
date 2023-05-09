@@ -1,12 +1,13 @@
 import * as core from "@actions/core";
+import { IYamlInput } from "./inputs";
 
-export interface IActionOutputs {
-    [key: string]: string;
-}
+export function setOutputs(outputs: IYamlInput[], log: boolean): void {
+    for (const output of outputs) {
+        core.setOutput(output.name, output.default);
 
-export function setOutputs(data: IActionOutputs, log: boolean): void {
-    for (const key of Object.keys(data)) {
-        core.setOutput(key, data[key]);
-        if (log) core.info(`${key}: ${data[key]}`);
+        if (log) {
+            const keyName = output.label ? output.label : output.name;
+            core.info(`${keyName}: ${output.default}`);
+        }
     }
 }

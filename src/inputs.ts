@@ -1,10 +1,10 @@
 import {
+    areKeysValid,
     findRepetitiveItems,
     getBooleanInputOrDefault,
     getInputOrDefault,
 } from "./utility";
 import * as yaml from "js-yaml";
-import { DEFAULT_INPUTS } from "./configs";
 
 export interface IInputs {
     yamlInputs: IYamlInput[];
@@ -14,21 +14,25 @@ export interface IInputs {
 export interface IYamlInput {
     name: string;
     default: string;
+    label?: string;
+    skipCommands?: boolean;
 }
 
-export const getInputs = (): Promise<IInputs> =>
+export const VALID_YAML_KEYS = ["name", "default", "label", "skipCommands"];
+
+export const getInputs = (defaultInputs: IInputs): Promise<IInputs> =>
     new Promise<IInputs>(resolve => {
         return resolve({
-            yamlInputs: getValidatedYamlInput(),
+            yamlInputs: getValidatedYamlInput(defaultInputs.yamlInputs),
             logInputs:
                 getBooleanInputOrDefault("log-inputs", undefined) ??
-                DEFAULT_INPUTS.logInputs,
+                defaultInputs.logInputs,
         });
     });
 
-function getValidatedYamlInput(): IYamlInput[] {
+function getValidatedYamlInput(defaultYamlInput: IYamlInput[]): IYamlInput[] {
     const yamlInputsStr = getInputOrDefault("inputs", undefined, true, false);
-    if (!yamlInputsStr) return DEFAULT_INPUTS.yamlInputs;
+    if (!yamlInputsStr) return defaultYamlInput;
 
     const parsedYaml = yaml.load(yamlInputsStr);
     ensureYamlIsValid(parsedYaml);
@@ -38,7 +42,16 @@ function getValidatedYamlInput(): IYamlInput[] {
 function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
     //Every item must has name and default key
     for (const item of parsedYaml) {
-        if (!item.name) throw new Error(`The 'name' parameter is required.`);
+        ensureNameIsValid(item.name);
+
+        const itemKeys = Object.keys(item);
+        if (!areKeysValid(VALID_YAML_KEYS, itemKeys))
+            throw new Error(
+                `Yaml keys are not valid. It has unexpected key(s).\nItem Keys: ${itemKeys.join(
+                    ", "
+                )}\nValid keys: ${VALID_YAML_KEYS.join(", ")}`
+            );
+
         if (item.default === undefined)
             throw new Error(
                 `The 'default' parameter is required.\nItem:\n\t${JSON.stringify(
@@ -54,5 +67,14 @@ function ensureYamlIsValid(parsedYaml: IYamlInput[]): void {
     if (repetitiveKeys.length > 0)
         throw new Error(
             `Repetitive keys is not allowed: ${repetitiveKeys.join(", ")}`
+        );
+}
+
+function ensureNameIsValid(name?: string): void {
+    if (!name) throw new Error(`The 'name' parameter is required.`);
+    const variableNameRegex = /^([a-zA-Z_][a-zA-Z0-9_-]*)$/;
+    if (!variableNameRegex.test(name))
+        throw new Error(
+            `The variable name ${name} is not valid. It must start with (a letter or _) and only contain (letter, number, _ and -).`
         );
 }

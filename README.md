@@ -38,7 +38,7 @@ By defining the `workflow_dispatch`, we can execute the GitHub Action manually a
 specify inputs for it, as well as **set default values** for inputs.
 
 However, sometimes we need our GitHub Action to run **both** manually and with other events.
-The Default values of `workflow_dispatch` only exist when the action is executed **manually**, 
+The Default values of `workflow_dispatch` only exist when the action is executed **manually**,
 and will not be set if the action is executed with other events.
 it can be difficult to manage inputs in a way that is both convenient and safe.
 
@@ -52,7 +52,8 @@ This GitHub Action aims to solve this problem by providing a **simple** and effe
 #### Problem 2:
 
 For future logs or debugging an action, we need to know exactly what parameters each action was executed
-with. For this, it is better to **log the variables** in Action GitHub. But this will be tedious, not clean and increase the
+with. For this, it is better to **log the variables** in Action GitHub. But this will be tedious, not clean and increase
+the
 possibility of error.
 
 **Solution:** To solve this problem, this action logs inputs by default (both `workflow_dispatch` inputs and those
@@ -60,10 +61,14 @@ passed to the action with the YAML structure).
 
 #### Problem 3:
 
-Logging inputs is not necessarily enough. Our action may be executed in different conditions. For example, it may be important for us to know on which branch this action was performed? Or maybe we want to use the brunch name in other steps.
-Or maybe it is necessary to read a file and save it in a variable or save the result of a shell command in a variable to use in the next steps.
+Logging inputs is not necessarily enough. Our action may be executed in different conditions. For example, it may be
+important for us to know on which branch this action was performed? Or maybe we want to use the brunch name in other
+steps.
+Or maybe it is necessary to read a file and save it in a variable or save the result of a shell command in a variable to
+use in the next steps.
 
-**Solution:** With the help of this action, you can save any command that can be executed and accessible in GitHub, log the result and use it easily in the next steps. 😎
+**Solution:** With the help of this action, you can save any command that can be executed and accessible in GitHub, log
+the result and use it easily in the next steps. 😎
 
 ### What is the purpose of your project?
 
@@ -110,19 +115,21 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Inputs
-        uses: payadel/inputs@v0.1.0  # Ensure is latest
+        uses: payadel/inputs@v0.2.0  # Ensure is latest
         id: inputs
         with:
           log-inputs: true  # Default is true
           inputs: |
             - name: 'my_input'
               default: 'my default value'
-            
+              label: 'my sample input'  # Label is for logging and it is optional. If is not provided we use variable name
+
             - name: current-branch-name  # Define new variable and save result of below command
               default: '$(git rev-parse --abbrev-ref HEAD)'  # Returns current branch name. For example: `main`
-            
+
             - name: file-content  
               default: '$(cat my-file.txt)'  # Read `my-file.txt` and save contents in `file-content` variable
+              skipCommands: false  # Default is false.
 
       # How use inputs?
       # Samples:
@@ -179,6 +186,25 @@ string, which means that no inputs will be specified unless you provide them.
 The `log-inputs` input determines whether or not the inputs will be logged to the GitHub Actions log. The default value
 is `'true'`, which means that the inputs will be logged by default. If you don't want the inputs to be logged, you can
 set this input to `'false'`.
+
+#### Yaml Structure
+
+| Field Name   | Data Type          | Description                                                                        |
+|--------------|--------------------|------------------------------------------------------------------------------------|
+| name         | string             | The name of the variable.                                                          |
+| default      | string             | The default value for the variable.                                                |
+| label        | string (optional)  | The label for the variable in logging.                                             |
+| skipCommands | boolean (optional) | Set this to `true` to skip processing text commands. The default value is `false`. |
+
+#### Add Command
+
+Suppose you want to log the branch in which the action was executed or use it in the next steps. For this, you can use
+the Git command `git rev-parse --abbrev-ref HEAD'`.
+This action has the ability to execute your commands. In order for the action to recognize your command, you must put the commands with `$(command)` structure. This action executes the command by default and replaces the output with the command.
+For example:
+result of `The current branch is: $(git rev-parse --abbrev-ref HEAD).` is `The current branch is: main.`
+
+If you want to disable this feature, you can set `skipCommands` to true.
 
 ## CHANGELOG
 

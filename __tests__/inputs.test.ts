@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { getInputs, IInputs } from "../src/inputs";
+import { getInputs, IInputs, VALID_YAML_KEYS } from "../src/inputs";
 import { mockGetInput } from "./mocks.utility";
 import { DEFAULT_INPUTS } from "../src/configs";
 
@@ -16,7 +16,7 @@ describe("getInputs", () => {
                 mockGetInput(name, {}, options)
         );
 
-        const inputs: IInputs = await getInputs();
+        const inputs: IInputs = await getInputs(DEFAULT_INPUTS);
 
         expect(inputs.logInputs).toBe(DEFAULT_INPUTS.logInputs);
         expect(inputs.yamlInputs).toBe(DEFAULT_INPUTS.yamlInputs);
@@ -27,7 +27,7 @@ describe("getInputs", () => {
             (name: string, options?: core.InputOptions | undefined) =>
                 mockGetInput(name, { inputs: "invalid yaml" }, options)
         );
-        await expect(getInputs()).rejects.toThrow(
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
             "The 'name' parameter is required."
         );
 
@@ -43,10 +43,34 @@ describe("getInputs", () => {
                     options
                 )
         );
-        await expect(getInputs()).rejects.toThrow(
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
             `The 'default' parameter is required.
 Item:
 \t{"name":"param"}`
+        );
+    });
+
+    it("yaml keys are not valid, so should reject", async () => {
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: valid
+  default: valid
+- name: invalid
+  default: invalid
+  invalid-key: invalid
+                `,
+                    },
+                    options
+                )
+        );
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
+            `Yaml keys are not valid. It has unexpected key(s).
+Item Keys: name, default, invalid-key
+Valid keys: ${VALID_YAML_KEYS.join(", ")}`
         );
     });
 
@@ -69,7 +93,7 @@ Item:
                 )
         );
 
-        await expect(getInputs()).rejects.toThrow(
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
             `Repetitive keys is not allowed: param1`
         );
     });
@@ -91,7 +115,7 @@ Item:
                 )
         );
 
-        await expect(getInputs()).resolves;
+        await expect(getInputs(DEFAULT_INPUTS)).resolves;
     });
 
     it("the default key is exist but empty, should resolve", async () => {
@@ -111,6 +135,34 @@ Item:
                 )
         );
 
-        await expect(getInputs()).resolves;
+        await expect(getInputs(DEFAULT_INPUTS)).resolves;
+    });
+
+    it("give invalid variable name", async () => {
+        let variableName = "contain space";
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    { inputs: `- name: '${variableName}'` },
+                    options
+                )
+        );
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
+            `The variable name ${variableName} is not valid. It must start with (a letter or _) and only contain (letter, number, _ and -).`
+        );
+
+        variableName = "1start-with-number";
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    { inputs: `- name: '${variableName}'` },
+                    options
+                )
+        );
+        await expect(getInputs(DEFAULT_INPUTS)).rejects.toThrow(
+            `The variable name ${variableName} is not valid. It must start with (a letter or _) and only contain (letter, number, _ and -).`
+        );
     });
 });

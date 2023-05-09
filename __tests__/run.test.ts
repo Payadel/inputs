@@ -1,25 +1,28 @@
 import run from "../src/run";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { mockGetInput } from "./mocks.utility";
+import { mockGetExecOutput, mockGetInput } from "./mocks.utility";
 import { assertOutput } from "./asserts.utility";
+import { DEFAULT_INPUTS } from "../src/configs";
+import * as exec from "@actions/exec";
 
 jest.mock("@actions/core");
 jest.mock("@actions/github");
+jest.mock("@actions/exec");
 
 describe("run", () => {
     beforeEach(() => {
         jest.resetAllMocks();
     });
 
-    it("when not any inputs provided, should resolve successful", async () => {
+    it("not any inputs provided, should resolve successful", async () => {
         // Arrange
         const infoMock = jest.spyOn(core, "info");
         const errorMock = jest.spyOn(core, "error");
         const setFailedMock = jest.spyOn(core, "setFailed");
 
         // Act
-        await run();
+        await run(DEFAULT_INPUTS);
 
         // Assert
         expect(infoMock).toBeCalledTimes(1);
@@ -36,17 +39,29 @@ describe("run", () => {
         const setOutputMock = jest.spyOn(core, "setOutput");
         const infoMock = jest.spyOn(core, "info");
 
-        const inputsPayload = {
+        (github.context.payload.inputs as any) = {
             input1: "value1",
             input2: "value2",
         };
-        (github.context.payload.inputs as any) = inputsPayload;
 
         // Act
-        await expect(run()).resolves;
+        await run(DEFAULT_INPUTS);
 
         // Assert
-        assertOutput(inputsPayload, setOutputMock, infoMock);
+        assertOutput(
+            [
+                {
+                    name: "input1",
+                    default: "value1",
+                },
+                {
+                    name: "input2",
+                    default: "value2",
+                },
+            ],
+            setOutputMock,
+            infoMock
+        );
     });
 
     it("should process yaml inputs", async () => {
@@ -70,11 +85,20 @@ describe("run", () => {
         );
 
         // Act
-        await expect(run()).resolves;
+        await run(DEFAULT_INPUTS);
 
         // Assert
         assertOutput(
-            { param1: "value1", param2: "value2" },
+            [
+                {
+                    name: "param1",
+                    default: "value1",
+                },
+                {
+                    name: "param2",
+                    default: "value2",
+                },
+            ],
             setOutputMock,
             infoMock
         );
@@ -96,6 +120,7 @@ describe("run", () => {
   default: 'value2'
 - name: 'commonInput'
   default: 'yaml'
+  label: 'common input'
     `,
                     },
                     options
@@ -108,19 +133,89 @@ describe("run", () => {
         };
 
         // Act
-        await expect(run()).resolves;
+        await run(DEFAULT_INPUTS);
 
         // Assert
         assertOutput(
-            {
-                input1: "value1",
-                input2: "value2",
-                param1: "value1",
-                param2: "value2",
-                commonInput: "github", //priority with GitHub context
-            },
+            [
+                {
+                    name: "input1",
+                    default: "value1",
+                },
+                {
+                    name: "input2",
+                    default: "value2",
+                },
+                {
+                    name: "param1",
+                    default: "value1",
+                },
+                {
+                    name: "param2",
+                    default: "value2",
+                },
+                {
+                    name: "commonInput",
+                    default: "github",
+                    label: "common input",
+                },
+            ],
             setOutputMock,
             infoMock
+        );
+    });
+
+    it("give text that has command", async () => {
+        // Arrange
+        jest.spyOn(exec, "getExecOutput").mockImplementation(command =>
+            mockGetExecOutput(command, [
+                {
+                    command: "git rev-parse --abbrev-ref HEAD",
+                    success: true,
+                    resolve: {
+                        stdout: "main",
+                        stderr: "",
+                        exitCode: 0,
+                    },
+                },
+            ])
+        );
+
+        const setOutputMock = jest.spyOn(core, "setOutput");
+        jest.spyOn(core, "getInput").mockImplementation(
+            (name: string, options?: core.InputOptions | undefined) =>
+                mockGetInput(
+                    name,
+                    {
+                        inputs: `
+- name: 'command'
+  default: 'The current branch is $(git rev-parse --abbrev-ref HEAD).'
+- name: 'skip-command'
+  default: 'do not execute this command: $(git rev-parse --abbrev-ref HEAD)'
+  skipCommands: true
+    `,
+                    },
+                    options
+                )
+        );
+
+        // Act
+        await run(DEFAULT_INPUTS);
+
+        // Assert
+        assertOutput(
+            [
+                {
+                    name: "command",
+                    default: "The current branch is main.",
+                },
+                {
+                    name: "skip-command",
+                    default:
+                        "do not execute this command: $(git rev-parse --abbrev-ref HEAD)",
+                },
+            ],
+            setOutputMock
         );
     });
 });

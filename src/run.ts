@@ -1,10 +1,11 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { getInputs, IYamlInput } from "./inputs";
+import { getInputs, IInputs, IYamlInput } from "./inputs";
 import { setOutputs } from "./outputs";
+import { executeCommands } from "./execCommands";
 
-const run = (): Promise<void> =>
-    _mainProcess()
+const run = (defaultInputs: IInputs): Promise<void> =>
+    _mainProcess(defaultInputs)
         .then(() => core.info("Operation completed successfully."))
         .catch(error => {
             core.error("Operation failed.");
@@ -15,42 +16,51 @@ const run = (): Promise<void> =>
 
 export default run;
 
-function _mainProcess(): Promise<void> {
-    return getInputs().then(actionInputs => {
-        const allInputs = combineAllInputs(
+function _mainProcess(defaultInputs: IInputs): Promise<void> {
+    return getInputs(defaultInputs).then(actionInputs => {
+        const allInputs = combineInputs(
             actionInputs.yamlInputs,
             github.context.payload.inputs
         );
 
-        setOutputs(allInputs, actionInputs.logInputs);
+        return _executeCommands(allInputs).then(() =>
+            setOutputs(allInputs, actionInputs.logInputs)
+        );
     });
 }
 
-function combineAllInputs(
+async function _executeCommands(inputs: IYamlInput[]): Promise<void> {
+    for (const input of inputs) {
+        if (input.skipCommands) continue;
+
+        await executeCommands(input.default).then(
+            result => (input.default = result)
+        );
+    }
+}
+
+function combineInputs(
     yamlInputs: IYamlInput[],
     githubInputs: { [key: string]: string } | undefined
-): { [key: string]: string } {
-    const keys = getAllKeys(yamlInputs, githubInputs);
-
-    //Combine inputs with GitHub context priority.
-    const result: { [key: string]: string } = {};
-    for (const key of keys) {
-        if (githubInputs && githubInputs[key]) result[key] = githubInputs[key];
-        else
-            result[key] = yamlInputs.find(
-                input => input.name.toLowerCase() === key
-            )!.default;
-    }
-
+): IYamlInput[] {
+    const result = yamlInputs;
+    if (githubInputs) addOrUpdate(result, githubInputs);
     return result;
 }
 
-function getAllKeys(
-    yamlInputs: IYamlInput[] | undefined,
-    githubInputs: { [key: string]: string } | undefined
-): string[] {
-    const yamlKeys = yamlInputs ? yamlInputs.map(input => input.name) : [];
-    const githubKeys = githubInputs ? Object.keys(githubInputs) : [];
-
-    return yamlKeys.concat(githubKeys);
+function addOrUpdate(
+    result: IYamlInput[],
+    githubInputs: { [key: string]: string }
+): void {
+    for (const key of Object.keys(githubInputs)) {
+        const targetIndex = result.findIndex(item => item.name === key);
+        if (targetIndex > 0) {
+            result[targetIndex].default = githubInputs[key];
+        } else {
+            result.push({
+                name: key,
+                default: githubInputs[key],
+            });
+        }
+    }
 }
