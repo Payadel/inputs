@@ -115,7 +115,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Inputs
-        uses: payadel/inputs@v0.1.0  # Ensure is latest
+        uses: payadel/inputs@v0.2.0  # Ensure is latest
         id: inputs
         with:
           log-inputs: true  # Default is true
