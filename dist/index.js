@@ -11,6 +11,7 @@ exports.DEFAULT_INPUTS = void 0;
 exports.DEFAULT_INPUTS = {
     logInputs: true,
     yamlInputs: [],
+    verbose: false,
 };
 //# sourceMappingURL=configs.js.map
 
@@ -34,7 +35,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.executeCommands = exports.COMMAND_REGEX = void 0;
 const utility_1 = __nccwpck_require__(2857);
 exports.COMMAND_REGEX = /\$\((.*?)\)/g;
-function executeCommands(str) {
+function executeCommands(str, verbose = false) {
     return __awaiter(this, void 0, void 0, function* () {
         if (str === undefined || str === null)
             throw new Error("The str parameter is required.");
@@ -43,7 +44,9 @@ function executeCommands(str) {
             return str;
         for (const match of matches) {
             const command = match.substring(2, match.length - 1);
-            const result = yield (0, utility_1.execCommand)(command).then(output => output.stdout.trim());
+            const result = yield (0, utility_1.execCommand)(command, undefined, undefined, {
+                silent: !verbose,
+            }).then(output => output.stdout.trim());
             str = str.replace(match, result);
         }
         return str;
@@ -88,10 +91,11 @@ const utility_1 = __nccwpck_require__(2857);
 const yaml = __importStar(__nccwpck_require__(1917));
 exports.VALID_YAML_KEYS = ["name", "default", "label", "skipCommands"];
 const getInputs = (defaultInputs) => new Promise(resolve => {
-    var _a;
+    var _a, _b;
     return resolve({
         yamlInputs: getValidatedYamlInput(defaultInputs.yamlInputs),
         logInputs: (_a = (0, utility_1.getBooleanInputOrDefault)("log-inputs", undefined)) !== null && _a !== void 0 ? _a : defaultInputs.logInputs,
+        verbose: (_b = (0, utility_1.getBooleanInputOrDefault)("verbose", undefined)) !== null && _b !== void 0 ? _b : defaultInputs.verbose,
     });
 });
 exports.getInputs = getInputs;
@@ -243,15 +247,15 @@ exports["default"] = run;
 function _mainProcess(defaultInputs) {
     return (0, inputs_1.getInputs)(defaultInputs).then(actionInputs => {
         const allInputs = combineInputs(actionInputs.yamlInputs, github.context.payload.inputs);
-        return _executeCommands(allInputs).then(() => (0, outputs_1.setOutputs)(allInputs, actionInputs.logInputs));
+        return _executeCommands(allInputs, actionInputs.verbose).then(() => (0, outputs_1.setOutputs)(allInputs, actionInputs.logInputs));
     });
 }
-function _executeCommands(inputs) {
+function _executeCommands(inputs, verbose) {
     return __awaiter(this, void 0, void 0, function* () {
         for (const input of inputs) {
             if (input.skipCommands)
                 continue;
-            yield (0, execCommands_1.executeCommands)(input.default).then(result => (input.default = result));
+            yield (0, execCommands_1.executeCommands)(input.default, verbose).then(result => (input.default = result));
         }
     });
 }
