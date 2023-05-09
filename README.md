@@ -179,6 +179,7 @@ This YAML code is an example of how to use this in a GitHub Actions workflow fil
 |--------------|----------------------------------|---------------------|----------|
 | `inputs`     | Inputs in YAML format            | `''` (empty string) | `false`  |
 | `log-inputs` | Whether or not to log the inputs | `'true'`            | `false`  | 
+| `verbose`    | log more data or not?            | `'false'`           | `false`  | 
 
 The `inputs` input allows you to specify the inputs for your workflow in `YAML` format. The default value is an empty
 string, which means that no inputs will be specified unless you provide them.
