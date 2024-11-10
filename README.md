@@ -25,64 +25,50 @@
 
 </div>
 
-## About
+# Inputs GitHub Action
 
-The `Inputs GitHub Action` is a tool that helps you manage inputs of your GitHub Action in a better way.
+The **Inputs GitHub Action** helps manage the inputs for your GitHub Actions more effectively.
 
-### What problem does it solve?
+## Why Use This Action?
 
-This action solves two main problems:
+This action solves common issues with input management in GitHub Actions:
 
-#### Problem 1:
+### Problem 1: Inconsistent Input Defaults
 
-Some GitHub Actions require variables that can be changed through `workflow_dispatch` inputs.
-By defining the `workflow_dispatch`, we can execute the GitHub Action manually and
-specify inputs for it, as well as **set default values** for inputs.
+Some GitHub Actions need variable inputs, especially with `workflow_dispatch` to allow manual triggering. This lets you
+set **default values** for inputs used in manual runs.
 
-However, sometimes we need our GitHub Action to run **both** manually and with other events.
-The Default values of `workflow_dispatch` only exist when the action is executed **manually**,
-and will not be set if the action is executed with other events.
-it can be difficult to manage inputs in a way that is both convenient and safe.
+However, when an action is triggered by events other than `workflow_dispatch`, these defaults don't carry over. Managing
+inputs that work both for manual and automatic triggers becomes tricky.
 
-**Solution:** With this action, you can manage inputs in a much easier and better way.
-The action allows you to specify inputs and default values with a simple and convenient `YAML` structure. If the action
-is executed manually, the inputs of `workflow_dispatch` are set in the output. However, if there is no input or the
-action is executed with other events, the default value specified in the action is set in the output.
+**Solution:** This action provides a simple way to set inputs and defaults through a `YAML` structure. When triggered
+manually, it uses `workflow_dispatch` inputs. When triggered by other events, it falls back to the specified defaults,
+ensuring consistent input values.
 
-This GitHub Action aims to solve this problem by providing a **simple** and effective way to manage inputs.
+### Problem 2: Tracking Inputs for Debugging
 
-#### Problem 2:
+For debugging, it’s useful to log the inputs an action received. Logging these manually can be tedious and prone to
+errors.
 
-For future logs or debugging an action, we need to know exactly what parameters each action was executed
-with. For this, it is better to **log the variables** in Action GitHub. But this will be tedious, not clean and increase
-the
-possibility of error.
+**Solution:** This action automatically logs both `workflow_dispatch` inputs and YAML-specified defaults, simplifying
+tracking and debugging.
 
-**Solution:** To solve this problem, this action logs inputs by default (both `workflow_dispatch` inputs and those
-passed to the action with the YAML structure).
+### Problem 3: Access to Extra Information
 
-#### Problem 3:
+Sometimes, we need more than just input variables. You might want details like the branch name, read file contents, or
+execute shell commands to use their results in later steps.
 
-Logging inputs is not necessarily enough. Our action may be executed in different conditions. For example, it may be
-important for us to know on which branch this action was performed? Or maybe we want to use the brunch name in other
-steps.
-Or maybe it is necessary to read a file and save it in a variable or save the result of a shell command in a variable to
-use in the next steps.
+**Solution:** This action lets you run commands within GitHub, log results, and pass these values to the next steps. 😎
 
-**Solution:** With the help of this action, you can save any command that can be executed and accessible in GitHub, log
-the result and use it easily in the next steps. 😎
+## Purpose
 
-### What is the purpose of your project?
+The **Inputs GitHub Action** simplifies input management by allowing you to set inputs and defaults easily in YAML. It’s
+designed to make handling inputs across different events straightforward.
 
-The purpose of the `Inputs GitHub Action` is to help users better manage the inputs of their GitHub Actions. By
-providing a simple and convenient way to specify inputs and default values using a `YAML` structure, this action aims to
-simplify the process of managing inputs and improve the lives of its audience.
+## Built With
 
-### Built With
-
-The Inputs GitHub Action was built using Typescript and the GitHub Actions API. Specifically, it was created using
-the `@actions/core` and `@actions/github` packages, which provide the functionality needed to interact with the GitHub
-Actions runtime environment and the GitHub API.
+This action is developed using **TypeScript** and the GitHub Actions API, specifically leveraging `@actions/core`
+and `@actions/github` packages to interact with GitHub Actions and its runtime environment.
 
 ## Getting Started
 
@@ -117,7 +103,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Inputs
-        uses: payadel/inputs@v0.2.2  # Ensure is latest
+        uses: payadel/inputs@v1  # Ensure is latest
         id: inputs
         with:
           log-inputs: true  # Default is true
@@ -141,39 +127,32 @@ jobs:
 
 ```
 
-This YAML code is an example of how to use this in a GitHub Actions workflow file. Here's what each section does:
+### Explanation
 
-- `name: My Workflow`: This sets the name of the workflow. Replace `My Workflow` with the name of your workflow.
+1. **Inputs Declaration**:
 
-- `on`: This section defines the events that trigger the workflow. In this example, the workflow is triggered on `push`
-  events to the `main` branch and manual `workflow_dispatch` events.
+- `workflow_dispatch` allows manual runs with `my_input`, which has a default value (`my default value`). This action
+  also supports automatic `push` triggers on `main`.
 
-- `inputs`: This section defines the inputs for the `workflow_dispatch` event. In this example, we have defined an input
-  named `my_input` with a description and default value.
+2. **Using the Inputs Action**:
 
-- `jobs`: This section defines the jobs that are run in the workflow.
+- The `Inputs` step uses the `payadel/inputs@v1` action to manage and log inputs.
+- The `with` field specifies `inputs`, each with a `name`, `default` value, and optional `label` for better log
+  readability.
 
-- `my_job`: This sets the name of the job. Replace `my_job` with the name of your job.
+3. **Defining Dynamic Values**:
 
-- `runs-on: ubuntu-latest`: This sets the operating system that the job runs on. In this example, the job runs on
-  Ubuntu.
+- `current-branch-name`: Stores the branch name dynamically by executing `git rev-parse`.
+- `file-content`: Reads and stores contents of `my-file.txt`, making it accessible in later steps.
 
-- `steps`: This section defines the steps that are run in the job.
+4. **Accessing the Inputs**:
 
-- `- uses: actions/checkout@v3`: This step checks out the repository code into the runner.
+- You can retrieve any input within other steps using `${{ steps.inputs.outputs.variable_name }}`, such as:
+    - `${{ steps.inputs.outputs.my_input }}`
+    - `${{ steps.inputs.outputs.current-branch-name }}`
+    - `${{ steps.inputs.outputs.file-content }}`
 
-- `- name: Inputs`: This sets the name of the step. Replace `Inputs` with the name of your step.
-
-- `- uses: payadel/inputs@v0.1.0`: This step uses the `Inputs` GitHub Action.
-
-- `- id: inputs`: This sets the ID of the step. You can use this ID to reference the output of the step in later steps.
-
-- `- with`: This section sets the inputs for the `Inputs` GitHub Action.
-
-- `- log-inputs: true`: This enables logging of the inputs to the GitHub Actions log. The default value is `true`.
-
-- `- inputs: |`: This section defines the inputs for the `Inputs` GitHub Action. In this example, we have defined an
-  input named `my_input` with a default value.
+This setup simplifies input management and provides flexible, accessible variables for use throughout the workflow.
 
 ### Documentation
 
@@ -203,7 +182,9 @@ set this input to `'false'`.
 
 Suppose you want to log the branch in which the action was executed or use it in the next steps. For this, you can use
 the Git command `git rev-parse --abbrev-ref HEAD'`.
-This action has the ability to execute your commands. In order for the action to recognize your command, you must put the commands with `$(command)` structure. This action executes the command by default and replaces the output with the command.
+This action has the ability to execute your commands. In order for the action to recognize your command, you must put
+the commands with `$(command)` structure. This action executes the command by default and replaces the output with the
+command.
 For example:
 result of `The current branch is: $(git rev-parse --abbrev-ref HEAD).` is `The current branch is: main.`
 
@@ -243,43 +224,42 @@ Reach out to the maintainer at one of the following places:
 
 ### Q: How do I specify inputs with this action?
 
-A: You can specify inputs using the `inputs` input in `YAML` format.
-Each part contains two essential keys. One `name` and one `default`.
-Define the variable name in `name` key and the default value in `default` key.
-The `default` key can be empty string but is required to define it.
+A: To specify inputs, use the `inputs` parameter in a `YAML` structure. Each entry should include two main keys:
 
-> `workflow_dispatch` inputs are recognized by default and have **priority**.
+- **`name`**: the variable name
+- **`default`**: the default value for the variable (can be an empty string but must be defined)
 
-See the [Getting Started](#getting-started) section above for an example.
+> Note: Inputs provided through `workflow_dispatch` take **priority** if they exist.
 
-### Q: What happens if I don't specify any inputs?
+Refer to the [Getting Started](#getting-started) section for an example.
 
-A: We consider `workflow_dispatch` inputs and inputs that are given as yaml.
-If one of these two is not available, we will use the other.
-If there is no variable in either of these two, it will not be in the output either.
+### Q: What happens if I don’t specify any inputs?
 
-> Don't forget that `workflow_dispatch` inputs will only exist when the action is executed manually.
+A: The action checks both `workflow_dispatch` inputs and those defined directly in the `YAML` inputs. If only one source
+is available, it uses those values; if neither source has inputs, then no inputs will appear in the output.
 
-### Q: When should define the inputs in the action?
+> Reminder: `workflow_dispatch` inputs are only available when the action is triggered manually.
 
-A: If your action is always executed manually, it is not necessary to define the inputs in the action, but if there is
-no `workflow_dispatch` or it is not necessarily going to be executed with `workflow_dispatch` (there are other events),
-we definitely suggest defining the inputs in the action.
+### Q: When should I define inputs directly in the action?
+
+A: If the action will **only** run manually, it isn’t necessary to define inputs in the action, as they can all be
+passed through `workflow_dispatch`. However, if the action might run automatically (triggered by events other
+than `workflow_dispatch`), we recommend defining all inputs directly in the action to ensure they are always available.
 
 ### Q: Can I still use `workflow_dispatch` inputs with this action?
 
-A: Yes! This action works seamlessly with `workflow_dispatch` inputs, so you can still use them for manual execution of
-your workflow.
+A: Absolutely! This action is compatible with `workflow_dispatch` inputs, so you can still use them for manual execution
+when needed.
 
 ### Q: How do I log the inputs?
 
-A: By default, inputs are logged automatically. If you don't want to log inputs, you can set the `log-inputs` input
-to `'false'`. See the [Getting Started](#getting-started) section above for an example.
+A: Inputs are logged automatically by default. To disable input logging, set the `log-inputs` parameter to `'false'`.
+For more details, see the [Getting Started](#getting-started) section.
 
-### Q: Can I use this action with any GitHub Actions workflow?
+### Q: Can I use this action in any GitHub Actions workflow?
 
-A: Yes! This action is compatible with any GitHub Actions workflow, so you can use it with any workflow you create or
-use.
+A: Yes! This action is fully compatible with all GitHub Actions workflows, so you can use it seamlessly in any workflow
+you create or use.
 
 ## Contributing
 
