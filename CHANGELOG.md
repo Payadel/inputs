@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/Payadel/inputs/compare/v0.3.0...v1.0.0) (2024-11-10)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([52384f7](https://github.com/Payadel/inputs/commit/52384f7f01b8584cdbc5cb4e0cc9c073296c0484))
+
 ## [0.3.0](https://github.com/Payadel/inputs/compare/v0.2.4...v0.3.0) (2024-11-10)
 
 
