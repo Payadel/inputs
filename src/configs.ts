@@ -1,7 +1,7 @@
-import { IInputs } from "./inputs";
+import { IInputs } from './inputs'
 
 export const DEFAULT_INPUTS: IInputs = {
-    logInputs: true,
-    yamlInputs: [],
-    verbose: false,
-};
+  logInputs: true,
+  yamlInputs: [],
+  verbose: false
+}

@@ -14,12 +14,14 @@
 <div align="center">
 <br />
 
+![CI](https://github.com/payadel/inputs/actions/workflows/ci.yml/badge.svg)
+[![Check dist/](https://github.com/payadel/inputs/actions/workflows/check-dist.yml/badge.svg)](https://github.com/payadel/inputs/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/payadel/inputs/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/payadel/inputs/actions/workflows/codeql-analysis.yml)
+[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
+
 [![code with love by Payadel](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-Payadel-ff1414.svg?style=flat-square)](https://github.com/Payadel)
-
 [![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/Payadel/inputs/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-![Build and Test](https://github.com/Payadel/inputs/actions/workflows/build-test.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/Payadel/Inputs)
-
 
 </div>
 
