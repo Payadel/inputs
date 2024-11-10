@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/Payadel/inputs/compare/v0.2.4...v0.3.0) (2024-11-10)
+
+
+### Features
+
+* add `verbose` mode ([c3f78c7](https://github.com/Payadel/inputs/commit/c3f78c7ea94dbbe3ccffc04114c84aa2a098fb2d))
+* get workflow_dispatch inputs, then setoutput and log ([8e9327a](https://github.com/Payadel/inputs/commit/8e9327ab7894f77a85ed0cf56e4c6cdf83ca9b2d))
+* get yaml data from input and validate it ([5ade7a6](https://github.com/Payadel/inputs/commit/5ade7a696135427388a4fe8117038f61acfa909e))
+* prepare base codes ([e5d7c6d](https://github.com/Payadel/inputs/commit/e5d7c6d7dabae06ee5b551dba0b571c9633a90fc))
+* process input yaml ([4d40fed](https://github.com/Payadel/inputs/commit/4d40feda9a27335d29f6ff6d1bce8a14a6a2828d))
+* support commands ([c890482](https://github.com/Payadel/inputs/commit/c890482421625b502b407c621888b6d7a5463c27))
+* support label in yaml for log. fix [#9](https://github.com/Payadel/inputs/issues/9) ([160197a](https://github.com/Payadel/inputs/commit/160197a035ddee4cef7df60caa609f70fc8b5b45))
+
+
+### Bug Fixes
+
+* add `verbose` to action.yml ([d30a0b4](https://github.com/Payadel/inputs/commit/d30a0b45ecc0a776f34aab9f520a589e260cd825))
+* fix bug when `default` key (in yaml) was empty ([810f9f8](https://github.com/Payadel/inputs/commit/810f9f82809fea8a87d753bea015d7d2ba6beaf0))
+* fix label bug when variable is common ([23c296c](https://github.com/Payadel/inputs/commit/23c296cf7d81a2fbc04e45c0615c1d415f73f9b3))
+* improve yaml validation with check keys ([12a422e](https://github.com/Payadel/inputs/commit/12a422edd1e7493669a210f99c99e2ebfc0d6d57))
+* show successful only in verbose mode ([cbf4b2d](https://github.com/Payadel/inputs/commit/cbf4b2dd243096957f8b5118637ad2ab97b9b975))
+* update to new format ([fe23ac0](https://github.com/Payadel/inputs/commit/fe23ac02f38bb72d2fd94591855af0576fe714aa))
+* validate variable name ([57d54de](https://github.com/Payadel/inputs/commit/57d54def2e2502cdd77d7c0fe5bfbc1e85ce819f))
+
 ## [0.2.4](https://github.com/Payadel/inputs/compare/v0.2.3...v0.2.4) (2024-11-10)
 
 
