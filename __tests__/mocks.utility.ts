@@ -1,44 +1,79 @@
-import * as exec from "@actions/exec";
-import * as core from "@actions/core";
+import * as exec from '@actions/exec'
+import * as core from '@actions/core'
 
-export function mockGetInput(
-    name: string,
-    inputs: { [key: string]: any },
-    options?: core.InputOptions | undefined
-) {
-    name = name.toLowerCase();
-    const targetName = Object.keys(inputs).find(
-        key => key.toLowerCase() == name
-    );
-    let result = targetName ? inputs[targetName] : "";
-
-    if (options && options.required && !result)
-        throw new Error(`Input required and not supplied: ${name}`);
-    if (options && options.trimWhitespace) result = result.trim();
-    return result;
+export const AppInputNames = {
+  yamlInputs: 'inputs',
+  logInputs: 'log-inputs',
+  verbose: 'verbose'
 }
 
 export interface IExpectedCommand {
-    command: string;
-    success: boolean;
-    resolve?: {
-        stdout: string;
-        stderr: string;
-        exitCode: number;
-    };
-    rejectMessage?: string;
+  command: string
+  success: boolean
+  resolve?: {
+    stdout: string
+    stderr: string
+    exitCode: number
+  }
+  rejectMessage?: string
 }
 
 export function mockGetExecOutput(
-    command: string,
-    expectedCommands: IExpectedCommand[]
+  commandLine: string,
+  expectedCommands: IExpectedCommand[]
 ): Promise<exec.ExecOutput> {
-    command = command.toLowerCase();
+  return new Promise((resolve, reject) => {
+    commandLine = commandLine.toLowerCase()
     const target = expectedCommands.find(
-        input => input.command.toLowerCase() === command
-    );
-    if (!target) return Promise.reject(new Error("Command not found."));
-    return target.success
-        ? Promise.resolve<exec.ExecOutput>(target.resolve!)
-        : Promise.reject<exec.ExecOutput>(new Error(target.rejectMessage!));
+      input => input.command.toLowerCase() === commandLine
+    )
+
+    if (!target) {
+      reject(new Error('Command not found.'))
+    } else if (target.success) {
+      resolve(target.resolve!)
+    } else {
+      reject(new Error(target.rejectMessage))
+    }
+  })
+}
+
+export interface IInputMock {
+  name: string
+  givenValue?: string | boolean | number
+  defaultValue?: string
+}
+
+export function mockGetInput(
+  name: string,
+  mockInputs: IInputMock[],
+  options?: core.InputOptions
+): string {
+  name = name.toLowerCase()
+  const targetMock = mockInputs.find(
+    mockInput => mockInput.name.toLowerCase() == name
+  )
+
+  let result = ''
+  if (targetMock) {
+    result = targetMock.givenValue
+      ? targetMock.givenValue.toString()
+      : (targetMock.defaultValue ?? '')
+  }
+
+  if (options) {
+    if (options.required && !result)
+      throw new Error(`Input required and not supplied: ${name}`)
+    if (result && options.trimWhitespace) result = result.trim()
+  }
+
+  return result
+}
+
+export function mockSetOutput(
+  name: string,
+  value: any,
+  output: { [key: string]: any }
+): void {
+  output[name] = value
 }

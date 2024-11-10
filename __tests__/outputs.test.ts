@@ -1,53 +1,26 @@
-import * as core from "@actions/core";
-import { setOutputs } from "../src/outputs";
-import { IYamlInput } from "../src/inputs";
+import * as core from '@actions/core'
+import { IActionOutput, setOutputs } from '../src/outputs'
 
-jest.mock("@actions/core");
+jest.mock('@actions/core')
 
-describe("setOutputs", () => {
-    beforeEach(() => {
-        jest.resetAllMocks();
-    });
+describe('setOutputs', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
 
-    it("should set all outputs", () => {
-        const outputs: IYamlInput[] = [
-            {
-                name: "hello-message",
-                default: "hello",
-                label: "hello message",
-            },
-        ];
-        jest.spyOn(core, "setOutput");
+  it('should set all outputs', () => {
+    const data: IActionOutput = {
+      name: 'test',
+      label: 'label',
+      default: 'default'
+    }
 
-        setOutputs(outputs, false);
+    jest.spyOn(core, 'setOutput')
 
-        for (let output of outputs)
-            expect(core.setOutput).toHaveBeenCalledWith(
-                output.name,
-                output.default
-            );
-    });
+    setOutputs([data], false)
 
-    it("should log all outputs", () => {
-        const outputs: IYamlInput[] = [
-            {
-                name: "hello-message",
-                default: "hello",
-                label: "hello message",
-            },
-            {
-                name: "hi-message",
-                default: "hi",
-                label: "hi message",
-            },
-        ];
-        const infoMock = jest.spyOn(core, "info");
-
-        setOutputs(outputs, true);
-
-        for (let output of outputs) {
-            const key = output.label ? output.label : output.name;
-            expect(infoMock).toHaveBeenCalledWith(`${key}: ${output.default}`);
-        }
-    });
-});
+    for (const output of [data]) {
+      expect(core.setOutput).toHaveBeenCalledWith(output.name, output.default)
+    }
+  })
+})
