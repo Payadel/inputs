@@ -1,0 +1,79 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-typescript:
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Check Format
+        id: npm-format-check
+        run: npm run format:check
+
+      - name: Lint
+        id: npm-lint
+        run: npm run lint
+
+      - name: Test
+        id: npm-ci-test
+        run: npm run ci-test
+
+  test-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        uses: ./
+        id: inputs
+        with:
+          log-inputs: true
+          inputs: |
+            - name: 'input-required'
+              default: 'input-required value'
+
+            - name: 'input-boolean'
+              default: 'true'
+
+      # For more information and sample asserts, please see https://github.com/Payadel/assert/
+      - name: Test outputs
+        uses: Payadel/assert@v1
+        with:
+          fail-fast: false
+          verbose: true
+          inputs: |
+            - name: 'test input-required'
+              type: Equals
+              expected: 'input-required value'
+              actual: '${{ steps.inputs.outputs.input-required }}'
+
+            - name: 'test input-boolean'
+              type: 'True'
+              input: '${{ steps.inputs.outputs.input-boolean }}'
