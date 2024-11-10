@@ -103,7 +103,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Inputs
-        uses: payadel/inputs@v0.3  # Ensure is latest
+        uses: payadel/inputs@v1  # Ensure is latest
         id: inputs
         with:
           log-inputs: true  # Default is true
@@ -136,7 +136,7 @@ jobs:
 
 2. **Using the Inputs Action**:
 
-- The `Inputs` step uses the `payadel/inputs@v0.3` action to manage and log inputs.
+- The `Inputs` step uses the `payadel/inputs@v1` action to manage and log inputs.
 - The `with` field specifies `inputs`, each with a `name`, `default` value, and optional `label` for better log
   readability.
 
