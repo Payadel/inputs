@@ -1,7 +1,7 @@
 {
   "name": "inputs-github-action",
   "description": "A GitHub action that helps you better manage the input of your GitHub action.",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "author": "Payadel",
   "private": true,
   "homepage": "https://github.com/Payadel/inputs",
